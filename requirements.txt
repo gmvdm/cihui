@@ -1,3 +1,9 @@
 tornado==2.4
+
+# Pgsql
+psycopg2>=2.4.5
+momoko>=0.5.0
+
+# Test runner
 pytest>=2.3.1
 pytest-xdist>=1.8

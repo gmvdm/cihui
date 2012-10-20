@@ -9,7 +9,8 @@ import tornado.web
 class CiHuiApplication(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r'/', handler.MainHandler)
+            (r'/', handler.MainHandler),
+            (r'/api/word', handler.APIWordHandler)
             ]
 
         tornado.web.Application.__init__(self, handlers)

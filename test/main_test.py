@@ -1,10 +1,9 @@
 import unittest
 
-from tornado.testing import AsyncHTTPTestCase, LogTrapTestCase
+from tornado.testing import AsyncHTTPTestCase
 from cihui import app
 
 
-# class DisplayWordListsTest(AsyncHTTPTestCase, LogTrapTestCase):
 class DisplayWordListsTest(AsyncHTTPTestCase):
 
     def get_app(self):
