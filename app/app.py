@@ -3,15 +3,10 @@
 
 import os
 import tornado.ioloop
-import tornado.web
 
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        self.write(u"你好，世界!")
+from cihui import app
 
-application = tornado.web.Application([
-    (r"/", MainHandler),
-])
+application = app.CiHuiApplication()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
