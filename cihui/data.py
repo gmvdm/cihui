@@ -31,7 +31,7 @@ class Database:
         self.db = momoko.AsyncClient(settings)
 
     def get_account(self, email, callback):
-        self.db.execute('SELECT 42, 12, 40, 11;', callback=self._on_get_account_response)
+        self.db.execute('SELECT 54321;', callback=self._on_get_account_response)
         return None
 
     def _on_get_account_response(self, cursor):
@@ -43,7 +43,7 @@ class Database:
     def get_lists(self, callback):
         self.lists_callback = callback
         # callback(self.settings)
-        self.db.execute('SELECT 42, 12, 40, 11;', callback=self._on_get_lists_response)
+        self.db.execute('SELECT 1, 2, 3, 4;', callback=self._on_get_lists_response)
         return None
 
     def _on_get_lists_response(self, cursor):

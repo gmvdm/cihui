@@ -9,12 +9,14 @@ class MainHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     def get(self):
-        self.write(u"你好，世界!")
+
         self.db.get_lists(self.received_lists)
 
     def received_lists(self, data):
-        self.write(str(data))
-        self.finish()
+        msg = u"你好，世界!"
+
+        self.render('index.html', message=msg, data=str(data))
+        # self.finish()
 
 class APIWordHandler(tornado.web.RequestHandler):
     def initialize(self, database):

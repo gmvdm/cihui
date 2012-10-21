@@ -3,6 +3,7 @@
 
 from cihui import handler
 
+import os
 import tornado.web
 
 
@@ -11,7 +12,8 @@ class CiHuiApplication(tornado.web.Application):
         self.db = data_layer
 
         settings = {
-            "xsrf_cookies": True,
+            'xsrf_cookies': True,
+            'template_path': os.path.join(os.path.dirname(__file__), '../templates')
             }
 
         if cookie_secret is None:
