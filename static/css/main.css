@@ -1,0 +1,9 @@
+/* Copyright Geoff Wilson 2012 */
+
+body {
+    text-rendering: optimizeLegibility;
+    font-size: 14px;
+    font-family: Helvetica, Arial, Verdana, sans-serif;
+    color: #333;
+    background-color: white;
+}
