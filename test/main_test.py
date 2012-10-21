@@ -1,13 +1,23 @@
+# -*- coding: utf-8 -*-
+# Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
+
+import mock
 import unittest
+
 
 from tornado.testing import AsyncHTTPTestCase
 from cihui import app
 
 
+class Data:
+    def get_lists(self, callback):
+        callback('list123')
+
 class DisplayWordListsTest(AsyncHTTPTestCase):
 
     def get_app(self):
-        return app.CiHuiApplication()
+        self.db = Data()
+        return app.CiHuiApplication(self.db)
 
     def setUp(self):
         AsyncHTTPTestCase.setUp(self)
@@ -17,6 +27,7 @@ class DisplayWordListsTest(AsyncHTTPTestCase):
         response = self.wait()
 
         self.assertEqual(200, response.code)
+        self.assertIn('list123', response.body)
 
     def test_invalid_url(self):
         self.http_client.fetch(self.get_url('/fish'), self.stop)
