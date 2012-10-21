@@ -5,28 +5,29 @@ import dj_database_url
 import logging
 import momoko
 
+def build_settings_from_dburl(db_url):
+    settings = {}
 
+    db_url_settings = dj_database_url.parse(db_url)
+
+    mapping = {'NAME': 'database',
+               'HOST': 'host',
+               'PORT': 'port',
+               'USER': 'user',
+               'PASSWORD': 'password'}
+
+    for k,v in mapping.items():
+        settings[v] = db_url_settings[k]
+
+    settings['min_conn'] = 1
+    settings['max_conn'] = 20
+    settings['cleanup_timeout'] = 10
+
+    return settings
 
 class Database:
     def __init__(self, db_url):
-        settings = {}
-        logging.info("Database url: %s", db_url)
-
-        db_url_settings = dj_database_url.parse(db_url)
-        settings['database'] = db_url_settings['NAME']
-        settings['host'] = db_url_settings['HOST']
-        settings['port'] = db_url_settings['PORT']
-        settings['user'] = db_url_settings['USER']
-        settings['password'] = db_url_settings['PASSWORD']
-
-        settings['min_conn'] = 1
-        settings['max_conn'] = 20
-        settings['cleanup_timeout'] = 10
-
-        self.settings = settings
-
-        logging.info("Connecting with settings: %s", str(settings))
-
+        settings = build_settings_from_dburl(db_url)
         self.db = momoko.AsyncClient(settings)
 
     def get_account(self, email, callback):

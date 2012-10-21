@@ -20,6 +20,11 @@ class APIWordHandler(tornado.web.RequestHandler):
     def initialize(self, database):
         self.db = database
 
+    def check_xsrf_cookie(self):
+        """ Disable cross site cookies on the API methods """
+        # TODO(gmwils) determine authentication method for API methods
+        pass
+
     def post(self):
         email = self.get_argument('email', 'No data received')
 
