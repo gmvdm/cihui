@@ -13,4 +13,3 @@ if __name__ == "__main__":
                                        os.environ.get('COOKIE_SECRET', None))
     application.listen(port)
     tornado.ioloop.IOLoop.instance().start()
-

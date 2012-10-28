@@ -3,6 +3,7 @@
 
 import tornado.web
 
+
 class MainHandler(tornado.web.RequestHandler):
     def initialize(self, database):
         self.db = database
@@ -17,6 +18,7 @@ class MainHandler(tornado.web.RequestHandler):
 
         self.render('index.html', message=msg, data=str(data))
         # self.finish()
+
 
 class APIWordHandler(tornado.web.RequestHandler):
     def initialize(self, database):

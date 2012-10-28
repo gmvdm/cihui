@@ -8,8 +8,10 @@ import urllib
 from tornado.testing import AsyncHTTPTestCase
 from cihui import app
 
+
 def build_data(data):
     return urllib.urlencode(data)
+
 
 class APITest(AsyncHTTPTestCase):
 
@@ -19,7 +21,6 @@ class APITest(AsyncHTTPTestCase):
 
     def setUp(self):
         AsyncHTTPTestCase.setUp(self)
-
 
     def test_post_new_list(self):
         data = build_data({'email': 'test@example.com',

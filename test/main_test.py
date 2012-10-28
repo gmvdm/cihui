@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
-import mock
 import unittest
-
 
 from tornado.testing import AsyncHTTPTestCase
 from cihui import app
@@ -12,6 +10,7 @@ from cihui import app
 class Data:
     def get_lists(self, callback):
         callback('list123')
+
 
 class DisplayWordListsTest(AsyncHTTPTestCase):
 

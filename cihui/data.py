@@ -5,6 +5,7 @@ import dj_database_url
 import logging
 import momoko
 
+
 def build_settings_from_dburl(db_url):
     settings = {}
 
@@ -16,7 +17,7 @@ def build_settings_from_dburl(db_url):
                'USER': 'user',
                'PASSWORD': 'password'}
 
-    for k,v in mapping.items():
+    for k, v in mapping.items():
         settings[v] = db_url_settings[k]
 
     settings['min_conn'] = 1
@@ -25,20 +26,30 @@ def build_settings_from_dburl(db_url):
 
     return settings
 
+
 class Database:
-    def __init__(self, db_url):
-        settings = build_settings_from_dburl(db_url)
-        self.db = momoko.AsyncClient(settings)
+    def __init__(self, db_url, db=None):
+        self.callbacks = {}
+        if db is not None:
+            self.db = db
+        else:
+            settings = build_settings_from_dburl(db_url)
+            self.db = momoko.AsyncClient(settings)
 
     def get_account(self, email, callback):
-        self.db.execute('SELECT 54321;', callback=self._on_get_account_response)
-        return None
+        self.callbacks[email] = callback
+        self.db.batch({email: ['SELECT * FROM user WHERE email = "%s";', (email,)]},
+                      callback=self._on_get_account_response)
 
-    def _on_get_account_response(self, cursor):
-        print cursor.fetchall()
-        # self.write('Query results: %s' % cursor.fetchall())
-        # self.finish()
-
+    def _on_get_account_response(self, cursors):
+        for key, cursor in cursors.items():
+            # TODO(gmwils) remove callback before calling
+            # XXX(gmwils) self.callbacks could grow unbounded, may need compacting dict
+            if len(cursor) == 0:
+                self.callbacks[key](None)
+            else:
+                # TODO(gmwils) build an account object
+                self.callbacks[key](cursor.fetchall())
 
     def get_lists(self, callback):
         self.lists_callback = callback
