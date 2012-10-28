@@ -27,9 +27,12 @@ def build_settings_from_dburl(db_url):
     return settings
 
 
+# TODO(gmwils) refactor into multiple stores
 class Database:
     def __init__(self, db_url, db=None):
+        self.lists_counter = 0
         self.callbacks = {}
+        self.list_callbacks = {}
         if db is not None:
             self.db = db
         else:
@@ -51,12 +54,27 @@ class Database:
                 # TODO(gmwils) build an account object
                 self.callbacks[key](cursor.fetchall())
 
-    def get_lists(self, callback):
-        self.lists_callback = callback
-        # callback(self.settings)
-        self.db.execute('SELECT 1, 2, 3, 4;', callback=self._on_get_lists_response)
-        return None
+    def get_lists(self, cb):
+        counter = self.lists_counter
+        self.lists_counter = counter + 1
+        self.list_callbacks[counter] = cb
 
-    def _on_get_lists_response(self, cursor):
-        results = cursor.fetchall()
-        self.lists_callback(results)
+        self.db.batch({counter: ['SELECT * FROM list;', ()]},
+                      callback=self._on_get_lists_response)
+
+    def _on_get_lists_response(self, cursors):
+        # self.list_callbacks[0]('hello')
+
+        for key, cursor in cursors.items():
+            callback = self.list_callbacks.get(key, None)
+            if callback is None:
+                continue
+
+            del self.list_callbacks[key]
+
+            if cursor is None or cursor.rowcount == 0:
+                logging.warning('No lists found in database')
+                callback(None)
+            else:
+                # TODO(gmwils) build a list of lists
+                callback(cursor.fetchall())

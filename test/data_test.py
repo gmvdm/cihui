@@ -21,7 +21,7 @@ class TestMapDbUrl(unittest.TestCase):
             self.assertEqual(settings[k], v)
 
 
-class GetAccountTest(AsyncHTTPTestCase):
+class BaseDataTest(AsyncHTTPTestCase):
     def get_app(self):
         self.app = mock.Mock()
         return self.app
@@ -32,6 +32,8 @@ class GetAccountTest(AsyncHTTPTestCase):
         self.database = data.Database('', self.db)
         self.callback = mock.Mock()
 
+
+class GetAccountTest(BaseDataTest):
     def test_get_account_sql(self):
         self.database.get_account('user@example.com', self.callback)
         self.db.batch.assert_called_once_with(
@@ -43,3 +45,18 @@ class GetAccountTest(AsyncHTTPTestCase):
     def test_no_account_found(self):
         self.database.callbacks['user@example.com'] = self.callback
         self.database._on_get_account_response({'user@example.com': ''})
+
+
+class GetListTest(BaseDataTest):
+    def test_get_lists_sql(self):
+        self.database.get_lists(self.callback)
+        self.db.batch.assert_called_once()
+        self.assertEqual(self.database.list_callbacks[0], self.callback)
+
+    def test_got_lists(self):
+        cursor = mock.Mock()
+
+        self.database.list_callbacks[0] = self.callback
+        self.database._on_get_lists_response({0: cursor})
+
+        self.callback.assert_called_once_with(cursor.fetchall())

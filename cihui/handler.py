@@ -10,7 +10,6 @@ class MainHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     def get(self):
-
         self.db.get_lists(self.received_lists)
 
     def received_lists(self, data):
