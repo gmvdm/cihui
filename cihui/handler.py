@@ -19,7 +19,7 @@ class MainHandler(tornado.web.RequestHandler):
         # self.finish()
 
 
-class APIWordHandler(tornado.web.RequestHandler):
+class APIHandler(tornado.web.RequestHandler):
     def initialize(self, database):
         self.db = database
 
@@ -28,8 +28,47 @@ class APIWordHandler(tornado.web.RequestHandler):
         # TODO(gmwils) determine authentication method for API methods
         pass
 
+
+class APIAccountHandler(APIHandler):
+    @tornado.web.asynchronous
+    def get(self):
+        email = self.get_argument('email', None)
+
+        if email is not None:
+            self.db.get_account(email, self.got_account)
+        else:
+            self.got_account(None)
+
+    @tornado.web.asynchronous
     def post(self):
         email = self.get_argument('email', 'No data received')
 
-        account_id = self.db.get_account(email)
-        self.write('Received email: "%s", new id: %s' % (email, account_id))
+        self.db.get_account(email, self.got_account)
+
+    def got_account(self, account):
+        if account is not None:
+            self.write('Received email: "%s", id: %s' % (account['email'], account['id']))
+        else:
+            # TODO(gmwils): set an error code
+            self.write('No account received')
+
+        self.finish()
+
+
+class APIListHandler(APIHandler):
+    def post(self):
+        list_name = self.get_argument('list', 'No data received')
+        words = self.get_argument('words', 'No data received')
+
+        self.db.create_list(list_name, words, self.created_list)
+
+    def created_list(self, word_list):
+        if word_list is not None:
+            # TODO(gmwils): This should be JSON
+            self.write('Created list: %s, new id: %s, with words: %s'
+                       % (word_list['name'], word_list['id'], word_list['words']))
+        else:
+            # TODO(gmwils): add status code and better error message
+            self.write('Failed to create list')
+
+        self.finish()

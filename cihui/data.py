@@ -42,7 +42,7 @@ class Database:
 
     def get_account(self, email, callback):
         self.callbacks[email] = callback
-        self.db.batch({email: ['SELECT * FROM user WHERE email = "%s";', (email,)]},
+        self.db.batch({email: ['SELECT * FROM account WHERE email = %s;', (email,)]},
                       callback=self._on_get_account_response)
 
     def _on_get_account_response(self, cursors):

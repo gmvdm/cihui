@@ -20,7 +20,6 @@ class TestMapDbUrl(unittest.TestCase):
         for k, v in expectations.items():
             self.assertEqual(settings[k], v)
 
-
     def test_default_params(self):
         url = 'postgresql://username:pass@hostname:1234/dbname'
         settings = data.build_settings_from_dburl(url)
@@ -34,6 +33,7 @@ class TestMapDbUrl(unittest.TestCase):
         self.assertEqual(settings['min_conn'], 5)
         self.assertEqual(settings['max_conn'], 100)
         self.assertEqual(settings['cleanup_timeout'], 20)
+
 
 class BaseDataTest(AsyncHTTPTestCase):
     def get_app(self):
@@ -51,7 +51,7 @@ class GetAccountTest(BaseDataTest):
     def test_get_account_sql(self):
         self.database.get_account('user@example.com', self.callback)
         self.db.batch.assert_called_once_with(
-            {'user@example.com': ['SELECT * FROM user WHERE email = "%s";', ('user@example.com',)]},
+            {'user@example.com': ['SELECT * FROM account WHERE email = %s;', ('user@example.com',)]},
             callback=self.database._on_get_account_response)
 
         self.assertEqual(self.database.callbacks['user@example.com'], self.callback)
@@ -74,3 +74,12 @@ class GetListTest(BaseDataTest):
         self.database._on_get_lists_response({0: cursor})
 
         self.callback.assert_called_once_with(cursor.fetchall())
+
+
+class CreateListTest(BaseDataTest):
+    def test_create_empty_list_sql(self):
+        self.database.create_list('Test List', [], self.callback)
+        self.db.batch.assert_called_once()
+        # TODO(gmwils) check added to callbacks
+
+    # TODO(gmwils): add test for the callback

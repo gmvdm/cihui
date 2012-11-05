@@ -22,7 +22,8 @@ class CiHuiApplication(tornado.web.Application):
             settings['cookie_secret'] = cookie_secret
 
         handlers = [(r'/', handler.MainHandler, dict(database=self.db)),
-                    (r'/api/word', handler.APIWordHandler, dict(database=self.db))
+                    (r'/api/account', handler.APIAccountHandler, dict(database=self.db)),
+                    (r'/api/list', handler.APIListHandler, dict(database=self.db)),
                     ]
 
         tornado.web.Application.__init__(self, handlers, **settings)
