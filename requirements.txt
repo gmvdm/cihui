@@ -5,6 +5,9 @@ psycopg2>=2.4.5
 momoko>=0.5.0
 dj-database-url>=0.2.1
 
+# Migrations
+sqlalchemy-migrate>=0.7.2
+
 # Test runner
 pytest>=2.3.1
 pytest-xdist>=1.8
