@@ -16,7 +16,24 @@ class MainHandler(tornado.web.RequestHandler):
         msg = u"你好，世界!"
 
         self.render('index.html', message=msg, word_lists=word_lists)
-        # self.finish()
+
+
+class WordListHandler(tornado.web.RequestHandler):
+    def initialize(self, database):
+        self.db = database
+
+    @tornado.web.asynchronous
+    def get(self, list_id):
+        self.db.get_word_list(int(list_id), self.received_list)
+
+    @tornado.web.asynchronous
+    def received_list(self, word_list):
+        if word_list is not None:
+            self.write(str(word_list))
+            self.finish()
+        else:
+            self.send_error(404)
+
 
 
 class APIHandler(tornado.web.RequestHandler):

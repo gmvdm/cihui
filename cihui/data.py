@@ -45,6 +45,7 @@ class Database:
         self.callbacks = {}
         self.list_callbacks = {}
         self.create_list_callbacks = {}
+        self.get_word_list_callbacks = {}
         if db is not None:
             self.db = db
         else:
@@ -91,6 +92,28 @@ class Database:
                     word_lists.append({'id': word_list[0], 'title': word_list[1]})
 
                 callback(word_lists)
+
+    def get_word_list(self, list_id, cb):
+        self.get_word_list_callbacks[list_id] = cb
+        self.db.batch({list_id: ['SELECT id, title, words FROM list WHERE id = %s;', (list_id,)]},
+                      callback=self._on_get_word_list_response)
+
+    def _on_get_word_list_response(self, cursors):
+        for key, cursor in cursors.items():
+            callback = self.get_word_list_callbacks.get(key, None)
+            if callback is None:
+                continue
+
+            del self.get_word_list_callbacks[key]
+
+            if cursor.rowcount != 1:
+                logging.warning('Invalid response for get_word_list(%s)', key)
+                callback(None)
+                continue
+
+            result = cursor.fetchone()
+            word_list = {'id': result[0], 'title': result[1], 'words': result[2]}
+            callback(word_list)
 
     def create_list(self, list_name, list_elements, cb):
         self.create_list_callbacks[list_name] = cb

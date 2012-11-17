@@ -61,7 +61,7 @@ class GetAccountTest(BaseDataTest):
         self.database._on_get_account_response({'user@example.com': ''})
 
 
-class GetListTest(BaseDataTest):
+class GetManyListsTest(BaseDataTest):
     def test_get_lists_sql(self):
         self.database.get_lists(self.callback)
         self.db.batch.assert_called_once()
