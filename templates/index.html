@@ -8,7 +8,11 @@
 <p>{{ message }}</p>
 
 <hr/>
-<pre>{{ data }}</pre>
+{% for word_list in word_lists %}
+  <li><a href='list/{{ word_list['id'] }}'>{{ word_list['title'] }}</a></li>
+{% end %}
+<hr/>
+<pre>{{ word_lists }}</pre>
 {% end %}
 
 {% block footer %}

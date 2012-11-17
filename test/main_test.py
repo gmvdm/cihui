@@ -9,7 +9,7 @@ from cihui import app
 
 class Data:
     def get_lists(self, callback):
-        callback('list123')
+        callback([{'id': 123, 'title': 'list123'}])
 
 
 class DisplayWordListsTest(AsyncHTTPTestCase):
