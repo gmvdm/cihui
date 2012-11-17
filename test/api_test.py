@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
+import json
 import mock
 import unittest
 import urllib
@@ -18,7 +19,6 @@ class APITestBase(AsyncHTTPTestCase):
     def setUp(self):
         AsyncHTTPTestCase.setUp(self)
 
-    # TODO(gmwils): this should be JSON
     def build_data(self, data):
         self.data = urllib.urlencode(data)
         return self.data
@@ -59,7 +59,8 @@ class ListTest(APITestBase):
 
     def test_create_list(self):
         data = self.build_data({'list': 'Test List',
-                                'words': [(u'大', 'da', 'big'), ]})
+                                'words': json.dumps([(u'大', 'da', 'big'), ])
+                                })
 
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
                                headers=None, body=data)
@@ -71,4 +72,5 @@ class ListTest(APITestBase):
         # self.assertIn(u'大', response.body)
 
     def test_update_existing_list(self):
+        # TODO(gmwils): fill in the test
         pass

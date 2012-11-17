@@ -69,17 +69,18 @@ class GetListTest(BaseDataTest):
 
     def test_got_lists(self):
         cursor = mock.Mock()
+        cursor.fetchmany.return_value = []
 
         self.database.list_callbacks[0] = self.callback
         self.database._on_get_lists_response({0: cursor})
 
-        self.callback.assert_called_once_with(cursor.fetchall())
+        self.callback.assert_called_once_with(cursor.fetchmany())
 
 
 class CreateListTest(BaseDataTest):
     def test_create_empty_list_sql(self):
         self.database.create_list('Test List', [], self.callback)
         self.db.batch.assert_called_once()
-        # TODO(gmwils) check added to callbacks
+        self.assertEqual(self.database.create_list_callbacks['Test List'], self.callback)
 
     # TODO(gmwils): add test for the callback

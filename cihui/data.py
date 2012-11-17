@@ -2,8 +2,18 @@
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
 import dj_database_url
+import json
 import logging
 import momoko
+
+
+def ResultIter(cursor, arraysize=100):
+    while True:
+        results = cursor.fetchmany(arraysize)
+        if not results:
+            break
+        for result in results:
+            yield result
 
 
 # TODO(gmwils) separate into a new file
@@ -34,6 +44,7 @@ class Database:
         self.lists_counter = 0
         self.callbacks = {}
         self.list_callbacks = {}
+        self.create_list_callbacks = {}
         if db is not None:
             self.db = db
         else:
@@ -60,12 +71,10 @@ class Database:
         self.lists_counter = counter + 1
         self.list_callbacks[counter] = cb
 
-        self.db.batch({counter: ['SELECT * FROM list;', ()]},
+        self.db.batch({counter: ['SELECT id, title FROM list ORDER BY created_at DESC;', ()]},
                       callback=self._on_get_lists_response)
 
     def _on_get_lists_response(self, cursors):
-        # self.list_callbacks[0]('hello')
-
         for key, cursor in cursors.items():
             callback = self.list_callbacks.get(key, None)
             if callback is None:
@@ -77,5 +86,28 @@ class Database:
                 logging.warning('No lists found in database')
                 callback(None)
             else:
-                # TODO(gmwils) build a list of lists
-                callback(cursor.fetchall())
+                word_lists = []
+                for word_list in ResultIter(cursor):
+                    word_lists.append({'id': word_list[0], 'title': word_list[1]})
+
+                callback(word_lists)
+
+    def create_list(self, list_name, list_elements, cb):
+        self.create_list_callbacks[list_name] = cb
+        # TODO(gmwils): create the list
+        self.db.batch({list_name: ['INSERT INTO list (title, words) VALUES (%s, %s)',
+                                   (list_name, json.dumps(list_elements))]},
+                      callback=self._on_create_list_response)
+
+    def _on_create_list_response(self, cursors):
+        for key, cursor in cursors.items():
+            callback = self.create_list_callbacks.get(key, None)
+
+            if callback is None:
+                # XXX(gmwils) should log an error here
+                continue
+
+            del self.create_list_callbacks[key]
+
+            # TODO(gmwils) determine success/fail of insert
+            callback(True)
