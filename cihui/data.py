@@ -95,7 +95,8 @@ class Database:
 
     def get_word_list(self, list_id, cb):
         self.get_word_list_callbacks[list_id] = cb
-        self.db.batch({list_id: ['SELECT id, title, words FROM list WHERE id = %s;', (list_id,)]},
+        self.db.batch({list_id: ['SELECT id, title, words FROM list WHERE id = %s;',
+                                 (list_id,)]},
                       callback=self._on_get_word_list_response)
 
     def _on_get_word_list_response(self, cursors):

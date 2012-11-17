@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+
+{% block header %}
+  <h1>{{ word_list['title'] }}</h1>
+{% end %}
+
+{% block content %}
+<input type='hidden' id='word_list_id' value='{{ word_list['id'] }}'/>
+
+<pre>{{ word_list['words'] }}</pre>
+
+{% end %}

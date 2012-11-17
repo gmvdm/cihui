@@ -29,8 +29,9 @@ class WordListHandler(tornado.web.RequestHandler):
     @tornado.web.asynchronous
     def received_list(self, word_list):
         if word_list is not None:
-            self.write(str(word_list))
-            self.finish()
+            if word_list.get('words') is None:
+                word_list['words'] = []
+            self.render('word_list.html', word_list=word_list)
         else:
             self.send_error(404)
 
