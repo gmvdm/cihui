@@ -68,13 +68,12 @@ class GetManyListsTest(BaseDataTest):
         self.assertEqual(self.database.list_callbacks[0], self.callback)
 
     def test_got_lists(self):
-        cursor = mock.Mock()
-        cursor.fetchmany.return_value = []
+        cursor = mock.MagicMock(side_effect=[])
 
         self.database.list_callbacks[0] = self.callback
         self.database._on_get_lists_response({0: cursor})
 
-        self.callback.assert_called_once_with(cursor.fetchmany())
+        self.callback.assert_called_once_with([])
 
 
 class CreateListTest(BaseDataTest):

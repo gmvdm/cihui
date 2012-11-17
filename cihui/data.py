@@ -7,15 +7,6 @@ import logging
 import momoko
 
 
-def ResultIter(cursor, arraysize=100):
-    while True:
-        results = cursor.fetchmany(arraysize)
-        if not results:
-            break
-        for result in results:
-            yield result
-
-
 # TODO(gmwils) separate into a new file
 def build_settings_from_dburl(db_url, min_conn=1, max_conn=20, cleanup_timeout=10):
     settings = {}
@@ -88,7 +79,7 @@ class Database:
                 callback(None)
             else:
                 word_lists = []
-                for word_list in ResultIter(cursor):
+                for word_list in cursor:
                     word_lists.append({'id': word_list[0], 'title': word_list[1]})
 
                 callback(word_lists)
@@ -118,7 +109,6 @@ class Database:
 
     def create_list(self, list_name, list_elements, cb):
         self.create_list_callbacks[list_name] = cb
-        # TODO(gmwils): create the list
         self.db.batch({list_name: ['INSERT INTO list (title, words) VALUES (%s, %s)',
                                    (list_name, json.dumps(list_elements))]},
                       callback=self._on_create_list_response)
