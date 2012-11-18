@@ -82,4 +82,28 @@ class CreateListTest(BaseDataTest):
         self.db.batch.assert_called_once()
         self.assertEqual(self.database.create_list_callbacks['Test List'], self.callback)
 
-    # TODO(gmwils): add test for the callback
+        # TODO(gmwils) actually test SQL called with right values
+
+    def test_created_list(self):
+        cursor = mock.Mock()
+
+        self.database.create_list_callbacks['testlist'] = self.callback
+        self.database._on_create_list_response({'testlist': cursor})
+
+        self.callback.assert_called_once_with(True)
+
+    def test_callback_failed_and_second_succeeded(self):
+        cursor = mock.Mock()
+
+        self.database.create_list_callbacks['testlist'] = self.callback
+        self.database._on_create_list_response({'false list': cursor,
+                                                'testlist': cursor})
+
+        self.callback.assert_called_once_with(True)
+
+    def test_create_word_list_sql(self):
+        self.database.create_list('Word List', [], self.callback)
+        self.db.batch.assert_called_once()
+        self.assertEqual(self.database.create_list_callbacks['Word List'], self.callback)
+
+        # TODO(gmwils) actually test SQL
