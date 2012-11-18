@@ -74,19 +74,21 @@ class APIAccountHandler(APIHandler):
 
 
 class APIListHandler(APIHandler):
+    @tornado.web.asynchronous
     def post(self):
         list_name = self.get_argument('list', 'No data received')
-        words = self.get_argument('words', 'No data received')
+        words = self.get_argument('words', None)
 
-        self.db.create_list(list_name, words, self.created_list)
-
-    def created_list(self, word_list):
-        if word_list is not None:
-            # TODO(gmwils): This should be JSON
-            self.write('Created list: %s, new id: %s, with words: %s'
-                       % (word_list['name'], word_list['id'], word_list['words']))
+        if words is None:
+            self.created_list(False)
         else:
-            # TODO(gmwils): add status code and better error message
-            self.write('Failed to create list')
+            self.db.create_list(list_name, words, self.created_list)
+
+    def created_list(self, success):
+        if success:
+            self.write('')
+        else:
+            self.set_status(500)
+            self.write('Failed to create list.')
 
         self.finish()

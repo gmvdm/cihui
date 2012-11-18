@@ -52,7 +52,7 @@ class ListTest(APITestBase):
     def get_app(self):
         class Data:
             def create_list(self, list_name, words, callback):
-                callback({'name': list_name, 'id': 'list123', 'words': words})
+                callback(True)
 
         self.data_layer = Data()
         return app.CiHuiApplication(self.data_layer)
@@ -66,10 +66,7 @@ class ListTest(APITestBase):
                                headers=None, body=data)
         response = self.wait()
 
-        self.assertIn('Test List', response.body)
-        self.assertIn('list123', response.body)
-        # TODO(gmwils): sort out encoding of data
-        # self.assertIn(u'大', response.body)
+        self.assertEqual(200, response.code)
 
     def test_update_existing_list(self):
         # TODO(gmwils): fill in the test

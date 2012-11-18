@@ -12,3 +12,6 @@ sqlalchemy-migrate>=0.7.2
 pytest>=2.3.1
 pytest-xdist>=1.8
 mock>=1.0.0
+
+# Scripts
+requests>=0.14.1
