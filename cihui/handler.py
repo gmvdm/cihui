@@ -3,11 +3,11 @@
 
 import tornado.web
 
-
-class MainHandler(tornado.web.RequestHandler):
+class BaseHandler(tornado.web.RequestHandler):
     def initialize(self, database):
         self.db = database
 
+class MainHandler(BaseHandler):
     @tornado.web.asynchronous
     def get(self):
         self.db.get_lists(self.received_lists)
@@ -18,10 +18,7 @@ class MainHandler(tornado.web.RequestHandler):
         self.render('index.html', message=msg, word_lists=word_lists)
 
 
-class WordListHandler(tornado.web.RequestHandler):
-    def initialize(self, database):
-        self.db = database
-
+class WordListHandler(BaseHandler):
     @tornado.web.asynchronous
     def get(self, list_id):
         self.db.get_word_list(int(list_id), self.received_list)
@@ -36,11 +33,7 @@ class WordListHandler(tornado.web.RequestHandler):
             self.send_error(404)
 
 
-
-class APIHandler(tornado.web.RequestHandler):
-    def initialize(self, database):
-        self.db = database
-
+class APIHandler(BaseHandler):
     def check_xsrf_cookie(self):
         """ Disable cross site cookies on the API methods """
         # TODO(gmwils) determine authentication method for API methods

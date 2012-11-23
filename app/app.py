@@ -11,9 +11,9 @@ if __name__ == "__main__":
     db_url = os.environ.get('DATABASE_URL', 'postgresql://localhost:5432/cihui')
     port = int(os.environ.get("PORT", 5000))
     debugMode = False
+
     if len(sys.argv) > 0 and sys.argv[1] == '--debug':
         debugMode = True
-        print 'Debug mode'
 
     application = app.CiHuiApplication(data.Database(db_url),
                                        os.environ.get('COOKIE_SECRET', None),
