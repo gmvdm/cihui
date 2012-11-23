@@ -1,4 +1,5 @@
-web:      python app/app.py 0.0.0.0:$PORT
+web:      python app/app.py
+debug:    python app/app.py --debug
 
 db_init:  python db/manage.py version_control
 db_test: python db/manage.py test

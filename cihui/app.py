@@ -8,12 +8,13 @@ import tornado.web
 
 
 class CiHuiApplication(tornado.web.Application):
-    def __init__(self, data_layer, cookie_secret=None):
+    def __init__(self, data_layer, cookie_secret=None, debug=False):
         self.db = data_layer
 
         settings = {'static_path': os.path.join(os.path.dirname(__file__), '../static'),
                     'template_path': os.path.join(os.path.dirname(__file__), '../templates'),
-                    'xsrf_cookies': True
+                    'xsrf_cookies': True,
+                    'debug': debug
                     }
 
         if cookie_secret is None:
