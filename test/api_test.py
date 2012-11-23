@@ -68,6 +68,32 @@ class ListTest(APITestBase):
 
         self.assertEqual(200, response.code)
 
+    def test_fail_on_create_empty_list(self):
+        data = self.build_data({'list': 'Test List', 'words': ''})
+        self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
+                               headers=None, body=data)
+        response = self.wait()
+
+        self.assertEqual(500, response.code)
+        self.assertIn('No word list', response.body)
+
+    def test_fail_on_missing_list(self):
+        data = self.build_data({'list': 'Test List'})
+        self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
+                               headers=None, body=data)
+        response = self.wait()
+
+        self.assertEqual(500, response.code)
+
+    def test_fail_on_missing_title(self):
+        data = self.build_data({})
+        self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
+                               headers=None, body=data)
+        response = self.wait()
+
+        self.assertEqual(500, response.code)
+        self.assertIn('Missing title', response.body)
+
     def test_update_existing_list(self):
         # TODO(gmwils): fill in the test
         pass

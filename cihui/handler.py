@@ -69,19 +69,27 @@ class APIAccountHandler(APIHandler):
 class APIListHandler(APIHandler):
     @tornado.web.asynchronous
     def post(self):
-        list_name = self.get_argument('list', 'No data received')
+        list_name = self.get_argument('list', None)
         words = self.get_argument('words', None)
 
-        if words is None:
-            self.created_list(False)
-        else:
-            self.db.create_list(list_name, words, self.created_list)
+        if list_name is None:
+            self.created_list(False, 'Missing title')
+            return
 
-    def created_list(self, success):
+        if words is None:
+            self.created_list(False, 'No word list supplied')
+            return
+
+        self.db.create_list(list_name, words, self.created_list)
+
+    def created_list(self, success, reason=None):
         if success:
             self.write('')
         else:
             self.set_status(500)
-            self.write('Failed to create list.')
+            if reason is not None:
+                self.write('Error: %s' % reason)
+            else:
+                self.write('Failed to create list.')
 
         self.finish()
