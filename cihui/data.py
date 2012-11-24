@@ -104,7 +104,11 @@ class Database:
                 continue
 
             result = cursor.fetchone()
-            word_list = {'id': result[0], 'title': result[1], 'words': result[2]}
+            words = result[2]
+            if words is not None:
+                words = json.loads(words)
+
+            word_list = {'id': result[0], 'title': result[1], 'words': words}
             callback(word_list)
 
     def create_list(self, list_name, list_elements, cb):
