@@ -19,8 +19,12 @@ class APITestBase(AsyncHTTPTestCase):
     def setUp(self):
         AsyncHTTPTestCase.setUp(self)
 
-    def build_data(self, data):
+    def url_encode_data(self, data):
         self.data = urllib.urlencode(data)
+        return self.data
+
+    def json_encode_data(self, data):
+        self.data = json.dumps(data)
         return self.data
 
 
@@ -34,7 +38,7 @@ class AccountTest(APITestBase):
         return app.CiHuiApplication(self.data_layer)
 
     def test_find_or_create_account(self):
-        data = self.build_data({'email': 'test@example.com'})
+        data = self.url_encode_data({'email': 'test@example.com'})
 
         self.http_client.fetch(self.get_url('/api/account'), self.stop, method='POST',
                                headers=None, body=data)
@@ -58,18 +62,18 @@ class ListTest(APITestBase):
         return app.CiHuiApplication(self.data_layer)
 
     def test_create_list(self):
-        data = self.build_data({'list': 'Test List',
-                                'words': json.dumps([(u'大', 'da', 'big'), ])
-                                })
+        data = self.json_encode_data({'title': 'Test List',
+                                      'words': [[u'大', 'da', 'big'], ]
+                                      })
 
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
                                headers=None, body=data)
         response = self.wait()
 
-        self.assertEqual(200, response.code)
+        self.assertEqual(201, response.code)
 
     def test_fail_on_create_empty_list(self):
-        data = self.build_data({'list': 'Test List', 'words': ''})
+        data = self.json_encode_data({'title': 'Test List', 'words': ''})
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
                                headers=None, body=data)
         response = self.wait()
@@ -78,7 +82,7 @@ class ListTest(APITestBase):
         self.assertIn('No word list', response.body)
 
     def test_fail_on_missing_list(self):
-        data = self.build_data({'list': 'Test List'})
+        data = self.json_encode_data({'title': 'Test List'})
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
                                headers=None, body=data)
         response = self.wait()
@@ -86,7 +90,7 @@ class ListTest(APITestBase):
         self.assertEqual(500, response.code)
 
     def test_fail_on_missing_title(self):
-        data = self.build_data({})
+        data = self.json_encode_data({})
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
                                headers=None, body=data)
         response = self.wait()

@@ -7,6 +7,15 @@
 {% block content %}
 <input type='hidden' id='word_list_id' value='{{ word_list['id'] }}'/>
 
-<pre>{{ word_list['words'] }}</pre>
+
+
+{% for word_entry in word_list['words'] %}
+<li>{{ escape(word_entry[0]) }} [{{ escape(word_entry[1]) }}] - {{ escape(word_entry[2]) }}</li>
+{% end %}
+
+<!-- Complete word list:
+
+{{ word_list['words'] }}
+-->
 
 {% end %}

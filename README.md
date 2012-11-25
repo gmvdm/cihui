@@ -25,3 +25,6 @@ Open a browser to http://localhost:5000/
 
     source bin/activate
     py.test -f test/
+
+
+

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
+import json
 import tornado.web
+
 
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self, database):
@@ -69,14 +71,15 @@ class APIAccountHandler(APIHandler):
 class APIListHandler(APIHandler):
     @tornado.web.asynchronous
     def post(self):
-        list_name = self.get_argument('list', None)
-        words = self.get_argument('words', None)
+        body = json.loads(self.request.body)
+        list_name = body.get('title', None)
+        words = body.get('words', None)
 
         if list_name is None:
             self.created_list(False, 'Missing title')
             return
 
-        if words is None:
+        if words is None or len(words) == 0:
             self.created_list(False, 'No word list supplied')
             return
 
@@ -84,6 +87,7 @@ class APIListHandler(APIHandler):
 
     def created_list(self, success, reason=None):
         if success:
+            self.set_status(201)
             self.write('')
         else:
             self.set_status(500)
