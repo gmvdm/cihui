@@ -5,6 +5,7 @@ import dj_database_url
 import json
 import logging
 import momoko
+import os
 
 
 # TODO(gmwils) separate into a new file
@@ -42,6 +43,12 @@ class Database:
         else:
             settings = build_settings_from_dburl(db_url)
             self.db = momoko.AsyncClient(settings)
+
+    def authenticate_api_user(self, user, passwd):
+        valid_user = os.environ.get('API_USER', 'user')
+        valid_passwd = os.environ.get('API_PASS', 'secret')
+
+        return (user == valid_user and passwd == valid_passwd)
 
     def get_account(self, email, callback):
         self.callbacks[email] = callback

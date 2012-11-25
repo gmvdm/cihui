@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
+import base64
 import json
 import tornado.web
 
@@ -8,6 +9,7 @@ import tornado.web
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self, database):
         self.db = database
+
 
 class MainHandler(BaseHandler):
     @tornado.web.asynchronous
@@ -38,8 +40,37 @@ class WordListHandler(BaseHandler):
 class APIHandler(BaseHandler):
     def check_xsrf_cookie(self):
         """ Disable cross site cookies on the API methods """
-        # TODO(gmwils) determine authentication method for API methods
         pass
+
+    def _execute(self, transforms, *args, **kwargs):
+        """ Wrap the _execute method with basic authentication """
+        if not self.require_basic_auth(kwargs):
+            return False
+        return super(APIHandler, self)._execute(transforms, *args, **kwargs)
+
+    def set_unauthorized_headers(self):
+        self.set_status(401)
+        self.set_header('WWW-Authenticate', 'Basic realm=Restricted')
+        self._transforms = []
+        self.finish()
+
+    def require_basic_auth(self, kwargs):
+        """ Enforce basic authentication """
+        auth_header = self.request.headers.get('Authorization')
+        if auth_header is None or not auth_header.startswith('Basic '):
+            self.set_unauthorized_headers()
+            return False
+
+        auth_decoded = base64.decodestring(auth_header[6:])
+        user, passwd = auth_decoded.split(':', 2)
+        if self.authenticate_api_user(user, passwd):
+            return True
+
+        self.set_unauthorized_headers()
+        return False
+
+    def authenticate_api_user(self, user, passwd):
+        return self.db.authenticate_api_user(user, passwd)
 
 
 class APIAccountHandler(APIHandler):

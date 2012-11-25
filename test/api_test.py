@@ -10,7 +10,7 @@ from tornado.testing import AsyncHTTPTestCase
 from cihui import app
 
 
-# TODO(gmwils): add authentication for the API
+# TODO(gmwils): add tests for authentication for the API
 class APITestBase(AsyncHTTPTestCase):
     def get_app(self):
         self.data_layer = mock.Mock()
@@ -34,6 +34,9 @@ class AccountTest(APITestBase):
             def get_account(self, email, callback):
                 callback({'email': email, 'id': 'id123'})
 
+            def authenticate_api_user(self, user, passwd):
+                return True
+
         self.data_layer = Data()
         return app.CiHuiApplication(self.data_layer)
 
@@ -41,7 +44,8 @@ class AccountTest(APITestBase):
         data = self.url_encode_data({'email': 'test@example.com'})
 
         self.http_client.fetch(self.get_url('/api/account'), self.stop, method='POST',
-                               headers=None, body=data)
+                               headers=None, body=data,
+                               auth_username='user', auth_password='secret')
         response = self.wait()
 
         self.assertEqual(200, response.code)
@@ -58,6 +62,9 @@ class ListTest(APITestBase):
             def create_list(self, list_name, words, callback):
                 callback(True)
 
+            def authenticate_api_user(self, user, passwd):
+                return True
+
         self.data_layer = Data()
         return app.CiHuiApplication(self.data_layer)
 
@@ -67,7 +74,8 @@ class ListTest(APITestBase):
                                       })
 
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
-                               headers=None, body=data)
+                               headers=None, body=data,
+                               auth_username='user', auth_password='secret')
         response = self.wait()
 
         self.assertEqual(201, response.code)
@@ -75,7 +83,8 @@ class ListTest(APITestBase):
     def test_fail_on_create_empty_list(self):
         data = self.json_encode_data({'title': 'Test List', 'words': ''})
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
-                               headers=None, body=data)
+                               headers=None, body=data,
+                               auth_username='user', auth_password='secret')
         response = self.wait()
 
         self.assertEqual(500, response.code)
@@ -84,7 +93,8 @@ class ListTest(APITestBase):
     def test_fail_on_missing_list(self):
         data = self.json_encode_data({'title': 'Test List'})
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
-                               headers=None, body=data)
+                               headers=None, body=data,
+                               auth_username='user', auth_password='secret')
         response = self.wait()
 
         self.assertEqual(500, response.code)
@@ -92,7 +102,8 @@ class ListTest(APITestBase):
     def test_fail_on_missing_title(self):
         data = self.json_encode_data({})
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
-                               headers=None, body=data)
+                               headers=None, body=data,
+                               auth_username='user', auth_password='secret')
         response = self.wait()
 
         self.assertEqual(500, response.code)

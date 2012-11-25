@@ -12,7 +12,7 @@ if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     debugMode = False
 
-    if len(sys.argv) > 0 and sys.argv[1] == '--debug':
+    if len(sys.argv) > 1 and sys.argv[1] == '--debug':
         debugMode = True
 
     application = app.CiHuiApplication(data.Database(db_url),
