@@ -2,4 +2,5 @@
 bin/
 include/
 lib/
+scripts/prod*
 NOTES.org
