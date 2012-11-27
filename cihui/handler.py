@@ -17,9 +17,7 @@ class MainHandler(BaseHandler):
         self.db.get_lists(self.received_lists)
 
     def received_lists(self, word_lists):
-        msg = u"你好，世界!"
-
-        self.render('index.html', message=msg, word_lists=word_lists)
+        self.render('index.html', word_lists=word_lists)
 
 
 class WordListHandler(BaseHandler):
