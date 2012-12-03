@@ -31,6 +31,14 @@ def build_settings_from_dburl(db_url, min_conn=1, max_conn=20, cleanup_timeout=1
 
 
 # TODO(gmwils) refactor into multiple stores
+
+# TODO(gmwils): Change to use a single dict for callbacks. For key in
+# the db call, use something like 'id|rock', with a function to
+# generate one, and a function to decode one. Then use the id to look
+# up the callback and the rock for data that needs to be passed.
+
+# TODO(gmwils): Ensure the dict doesn't grow forever. Compact somehow
+
 class Database:
     def __init__(self, db_url, db=None):
         self.lists_counter = 0

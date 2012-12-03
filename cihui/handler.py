@@ -5,6 +5,8 @@ import base64
 import json
 import tornado.web
 
+from cihui import uri
+
 
 class BaseHandler(tornado.web.RequestHandler):
     def initialize(self, database):
@@ -17,6 +19,11 @@ class MainHandler(BaseHandler):
         self.db.get_lists(self.received_lists)
 
     def received_lists(self, word_lists):
+        def add_stub(word_list):
+            word_list['stub'] = uri.generate_stub(word_list['id'], word_list['title'])
+            return word_list
+
+        word_lists = map(add_stub, word_lists)
         self.render('index.html', word_lists=word_lists)
 
 
