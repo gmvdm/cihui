@@ -8,7 +8,11 @@
 <input type='hidden' id='word_list_id' value='{{ word_list['id'] }}'/>
 
 {% for word_entry in word_list['words'] %}
-<li>{{ escape(word_entry[0]) }} [{{ escape(word_entry[1]) }}] - {{ escape(str(word_entry[2])) }}</li>
+<li class='word'><span class='zi'>{{ escape(word_entry[0]) }}</span>
+ <span class='pinyin'>{{ escape(word_entry[1]) }}</span>
+<br/>
+ <span class='desc'>{{ escape(str(word_entry[2])) }}</span>
+</li>
 {% end %}
 
 

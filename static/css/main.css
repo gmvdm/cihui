@@ -7,3 +7,19 @@ body {
     color: #333;
     background-color: white;
 }
+
+li.word {
+    list-style: none;
+    margin-top: 0.4em;
+    margin-bottom: 0.6em;
+}
+
+span.zi {
+    font-size: 24pt;
+    font-weight: bold;
+}
+
+span.pinyin {
+    font-size: 14pt;
+    font-style: italic;
+}
