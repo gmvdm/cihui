@@ -6,6 +6,7 @@ import json
 import tornado.web
 
 from cihui import uri
+from cihui import formatter
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -34,9 +35,15 @@ class WordListHandler(BaseHandler):
 
     @tornado.web.asynchronous
     def received_list(self, word_list):
+        def add_description(entry):
+            if entry is not None:
+                entry.append(formatter.format_description(entry[2]))
+            return entry
+
         if word_list is not None:
             if word_list.get('words') is None:
                 word_list['words'] = []
+            word_list['words'] = map(add_description, word_list['words'])
             self.render('word_list.html', word_list=word_list)
         else:
             self.send_error(404)

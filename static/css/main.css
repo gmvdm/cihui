@@ -23,3 +23,9 @@ span.pinyin {
     font-size: 14pt;
     font-style: italic;
 }
+
+span.desc {
+    font-family: Georgia, serif;
+    font-size: 12pt;
+    font-style: italic;
+}
