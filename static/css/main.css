@@ -15,8 +15,9 @@ li.word {
 }
 
 span.zi {
+    font-family: "Microsoft YaHei","SimHei";
     font-size: 24pt;
-    font-weight: bold;
+    font-weight: normal;
 }
 
 span.pinyin {
