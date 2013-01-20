@@ -15,3 +15,6 @@ mock>=1.0.0
 
 # Scripts
 requests>=0.14.1
+
+# Code stats
+radon>=0.3.1
