@@ -13,7 +13,6 @@ class Data:
 
 
 class DisplayWordListsTest(AsyncHTTPTestCase):
-
     def get_app(self):
         self.db = Data()
         return app.CiHuiApplication(self.db)

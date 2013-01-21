@@ -7,6 +7,8 @@
 {% block content %}
 <input type='hidden' id='word_list_id' value='{{ word_list['id'] }}'/>
 
+<p>Download: <a href='{{ request.uri }}.csv'>csv</a></p>
+
 {% for word_entry in word_list['words'] %}
 <li class='word'><span class='zi'>{{ escape(word_entry[0]) }}</span>
  <span class='pinyin'>{{ escape(word_entry[1]) }}</span>

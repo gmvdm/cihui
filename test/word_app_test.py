@@ -9,8 +9,9 @@ from cihui import app
 
 class Data:
     def get_word_list(self, list_id, callback):
-        if list_id != 404:
-            callback({'id': list_id, 'title': 'list_%d' % list_id})
+        if list_id not in [404]:
+            words = [[u'大', 'da', ['big']], ]
+            callback({'id': list_id, 'title': 'list_%d' % list_id, 'words': words})
         else:
             callback(None)
 
@@ -36,6 +37,22 @@ class DisplayWordListTest(AsyncHTTPTestCase):
         response = self.wait()
 
         self.assertEqual(404, response.code)
+
+    def test_descriptive_stub(self):
+        self.http_client.fetch(self.get_url('/list/101-some-great-list'), self.stop)
+        response = self.wait()
+
+        self.assertEqual(200, response.code)
+
+    def test_csv_output(self):
+        self.http_client.fetch(self.get_url('/list/102.csv'), self.stop)
+        response = self.wait()
+
+        self.assertEqual(200, response.code)
+        self.assertIn('text/csv', response.headers['Content-Type'])
+        # self.assertIn('102', response.headers['Content-Type'])
+        self.assertIn('big', response.body)
+
 
 
 if __name__ == '__main__':
