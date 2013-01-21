@@ -1,33 +1,11 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
-import dj_database_url
+from cihui import database_url
 import json
 import logging
 import momoko
 import os
-
-
-# TODO(gmwils) separate into a new file
-def build_settings_from_dburl(db_url, min_conn=1, max_conn=20, cleanup_timeout=10):
-    settings = {}
-
-    db_url_settings = dj_database_url.parse(db_url)
-
-    mapping = {'NAME': 'database',
-               'HOST': 'host',
-               'PORT': 'port',
-               'USER': 'user',
-               'PASSWORD': 'password'}
-
-    for k, v in mapping.items():
-        settings[v] = db_url_settings[k]
-
-    settings['min_conn'] = min_conn
-    settings['max_conn'] = max_conn
-    settings['cleanup_timeout'] = cleanup_timeout
-
-    return settings
 
 
 # TODO(gmwils) refactor into multiple stores
@@ -49,7 +27,7 @@ class Database:
         if db is not None:
             self.db = db
         else:
-            settings = build_settings_from_dburl(db_url)
+            settings = database_url.build_settings_from_dburl(db_url)
             self.db = momoko.AsyncClient(settings)
 
     def authenticate_api_user(self, user, passwd):
