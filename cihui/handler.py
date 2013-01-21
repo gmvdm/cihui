@@ -44,7 +44,6 @@ class WordListHandler(BaseHandler):
             self.write(u'"%s","%s","%s"\n' % (word[0], word[1], formatter.format_description(word[2])))
         self.finish()
 
-
     @tornado.web.asynchronous
     def received_list(self, word_list):
         def add_description(entry):

@@ -50,9 +50,7 @@ class DisplayWordListTest(AsyncHTTPTestCase):
 
         self.assertEqual(200, response.code)
         self.assertIn('text/csv', response.headers['Content-Type'])
-        # self.assertIn('102', response.headers['Content-Type'])
         self.assertIn('big', response.body)
-
 
 
 if __name__ == '__main__':
