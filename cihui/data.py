@@ -8,25 +8,11 @@ import momoko
 import os
 
 
-# TODO(gmwils) refactor into multiple stores
-
-# TODO(gmwils): Change to use a single dict for callbacks. For key in
-# the db call, use something like 'id|rock', with a function to
-# generate one, and a function to decode one. Then use the id to look
-# up the callback and the rock for data that needs to be passed.
-
-# TODO(gmwils): Ensure the dict doesn't grow forever. Compact somehow
-
-class Database:
-    def __init__(self, db_url, db=None):
+class BaseDatabase(object):
+    def __init__(self):
         self.callback_counter = 0
+        # TODO(gmwils): Ensure the dict doesn't grow forever. Compact somehow
         self.callbacks = {}
-
-        if db is not None:
-            self.db = db
-        else:
-            settings = database_url.build_settings_from_dburl(db_url)
-            self.db = momoko.AsyncClient(settings)
 
     def build_id(self, rock=''):
         cb_id = self.callback_counter
@@ -41,6 +27,23 @@ class Database:
             del self.callbacks[cb_id]
 
         return callback, rock
+
+
+class AsyncDatabase(BaseDatabase):
+    def __init__(self, db_url, db=None):
+        super(AsyncDatabase, self).__init__()
+
+        if db is not None:
+            self.db = db
+        else:
+            settings = database_url.build_settings_from_dburl(db_url)
+            self.db = momoko.AsyncClient(settings)
+
+
+# TODO(gmwils) refactor into multiple stores (Account, List)
+class Database(AsyncDatabase):
+    def __init__(self, db_url, db=None):
+        super(Database, self).__init__(db_url, db)
 
     def authenticate_api_user(self, user, passwd):
         valid_user = os.environ.get('API_USER', 'user')
@@ -91,7 +94,7 @@ class Database:
         self.callbacks[cb_id] = cb
 
         self.db.batch({cb_id: ['SELECT id, title, words FROM list WHERE id = %s;',
-                                 (list_id,)]},
+                               (list_id,)]},
                       callback=self._on_get_word_list_response)
 
     def _on_get_word_list_response(self, cursors):
