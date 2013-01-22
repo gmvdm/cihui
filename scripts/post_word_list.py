@@ -7,7 +7,8 @@ import requests
 
 
 if __name__ == '__main__':
-    payload = {'title': 'Script List', 'words': [[u'大', u'dà', 'big'], ]}
+    payload = {'title': 'Scrpt List', 'words': [[u'大', u'dà', ['big']],
+                                                 [u'小', u'xiao', ['small']]]}
     r = requests.post('http://localhost:5000/api/list',
                       data=json.dumps(payload),
                       auth=('user', 'secret'))

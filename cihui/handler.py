@@ -2,6 +2,7 @@
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
 import base64
+import functools
 import json
 import tornado.web
 
@@ -137,7 +138,11 @@ class APIListHandler(APIHandler):
             self.created_list(False, 'No word list supplied')
             return
 
-        self.db.create_list(list_name, words, self.created_list)
+        cb = functools.partial(self.on_list_exists, list_name, words)
+        self.db.list_exists(list_name, cb)
+
+    def on_list_exists(self, list_name, words, exists):
+        self.db.create_list(list_name, words, self.created_list, exists)
 
     def created_list(self, success, reason=None):
         if success:

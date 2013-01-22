@@ -115,12 +115,35 @@ class Database(AsyncDatabase):
             word_list = {'id': result[0], 'title': result[1], 'words': words}
             callback(word_list)
 
-    def create_list(self, list_name, list_elements, cb):
+    def list_exists(self, list_name, cb):
+        cb_id = self.add_callback(cb, list_name)
+        self.db.batch({cb_id: ['SELECT count(*) FROM list WHERE title=%s', (list_name,)]},
+                      callback=self._on_list_exists)
+
+    def _on_list_exists(self, cursors):
+        for key, cursor in cursors.items():
+            exists = False
+            callback, list_name = self.get_callback(key)
+
+            count = cursor.fetchone()[0]
+
+            if count > 0:
+                exists = True
+
+            callback(exists)
+
+    def create_list(self, list_name, list_elements, cb, list_exists=False):
         cb_id = self.add_callback(cb, list_name)
 
-        self.db.batch({cb_id: ['INSERT INTO list (title, words) VALUES (%s, %s)',
-                               (list_name, json.dumps(list_elements))]},
-                      callback=self._on_create_list_response)
+        if list_exists:
+            self.db.batch({cb_id: ['UPDATE list SET words=%s WHERE title=%s',
+                                   (json.dumps(list_elements), list_name)]},
+                          callback=self._on_create_list_response)
+
+        else:
+            self.db.batch({cb_id: ['INSERT INTO list (title, words) VALUES (%s, %s)',
+                                   (list_name, json.dumps(list_elements))]},
+                          callback=self._on_create_list_response)
 
     def _on_create_list_response(self, cursors):
         for key, cursor in cursors.items():
@@ -130,5 +153,5 @@ class Database(AsyncDatabase):
                 # XXX(gmwils) should log an error here
                 continue
 
-            # TODO(gmwils) determine success/fail of insert
+            # TODO(gmwils) determine success/fail of insert/update?
             callback(True)

@@ -59,11 +59,14 @@ class AccountTest(APITestBase):
 class ListTest(APITestBase):
     def get_app(self):
         class Data:
-            def create_list(self, list_name, words, callback):
+            def create_list(self, list_name, words, callback, exists=False):
                 callback(True)
 
             def authenticate_api_user(self, user, passwd):
                 return True
+
+            def list_exists(self, list_name, callback):
+                callback(True)
 
         self.data_layer = Data()
         return app.CiHuiApplication(self.data_layer)

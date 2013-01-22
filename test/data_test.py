@@ -60,16 +60,20 @@ class CreateListTest(BaseDataTest):
     def test_create_empty_list_sql(self):
         self.database.create_list('Test List', [], self.callback)
         self.db.batch.assert_called_once()
+        self.assertIn('INSERT', str(self.db.batch.call_args))
         self.assertEqual(self.database.callbacks['0|Test List'], self.callback)
-
-        # TODO(gmwils) actually test SQL called with right values
 
     def test_create_word_list_sql(self):
         self.database.create_list('Word List', [[u'大', 'da', ['big']], ], self.callback)
         self.db.batch.assert_called_once()
+        self.assertIn('INSERT', str(self.db.batch.call_args))
         self.assertEqual(self.database.callbacks['0|Word List'], self.callback)
 
-        # TODO(gmwils) actually test SQL
+    def test_update_existing_list(self):
+        self.database.create_list('Test List', [], self.callback, True)
+        self.db.batch.assert_called_once()
+        self.assertIn('UPDATE', str(self.db.batch.call_args))
+        self.assertEqual(self.database.callbacks['0|Test List'], self.callback)
 
     def test_created_list(self):
         cursor = mock.Mock()
@@ -88,10 +92,27 @@ class CreateListTest(BaseDataTest):
 
         self.callback.assert_called_once_with(True)
 
-    # TODO(gmwils) handle duplicates
-    def test_create_duplicate_list(self):
-        pass
-        self.database.create_list('Word List', [], self.callback)
-        self.db.batch.assert_called_once()  # INSERT
-        self.database.create_list('Word List', [[u'大', 'da', ['big']], ], self.callback)
-        self.db.batch.assert_called_once()  # UPDATE
+
+class ListExistsTest(BaseDataTest):
+    def test_list_exists(self):
+        self.database.list_exists('list name', self.callback)
+        self.db.batch.assert_called_once()
+        self.assertEqual(self.database.callbacks['0|list name'], self.callback)
+
+    def test_on_list_exists(self):
+        cursor = mock.MagicMock(side_effect=[])
+        cursor.fetchone.return_value = tuple([1])
+
+        self.database.callbacks['0|testlist'] = self.callback
+        self.database._on_list_exists({'0|testlist': cursor})
+
+        self.callback.assert_called_once_with(True)
+
+    def test_on_list_not_exists(self):
+        cursor = mock.MagicMock(side_effect=[])
+        cursor.fetchone.return_value = tuple([0])
+
+        self.database.callbacks['0|testlist'] = self.callback
+        self.database._on_list_exists({'0|testlist': cursor})
+
+        self.callback.assert_called_once_with(False)
