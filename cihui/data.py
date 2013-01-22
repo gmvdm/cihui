@@ -14,10 +14,14 @@ class BaseDatabase(object):
         # TODO(gmwils): Ensure the dict doesn't grow forever. Compact somehow
         self.callbacks = {}
 
-    def build_id(self, rock=''):
-        cb_id = self.callback_counter
+    def add_callback(self, cb, rock=''):
+        cb_counter = self.callback_counter
         self.callback_counter += 1
-        return '%d|%s' % (cb_id, rock)
+        cb_id = '%d|%s' % (cb_counter, rock)
+
+        self.callbacks[cb_id] = cb
+
+        return cb_id
 
     def get_callback(self, cb_id):
         callback = self.callbacks.get(cb_id, None)
@@ -52,9 +56,8 @@ class Database(AsyncDatabase):
         return (user == valid_user and passwd == valid_passwd)
 
     def get_account(self, email, callback):
-        cb_id = self.build_id(email)
+        cb_id = self.add_callback(callback, email)
 
-        self.callbacks[cb_id] = callback
         self.db.batch({cb_id: ['SELECT * FROM account WHERE email = %s;', (email,)]},
                       callback=self._on_get_account_response)
 
@@ -69,8 +72,7 @@ class Database(AsyncDatabase):
                 callback(cursor.fetchall())
 
     def get_lists(self, cb):
-        cb_id = self.build_id()
-        self.callbacks[cb_id] = cb
+        cb_id = self.add_callback(cb)
 
         self.db.batch({cb_id: ['SELECT id, title FROM list ORDER BY created_at DESC;', ()]},
                       callback=self._on_get_lists_response)
@@ -90,8 +92,7 @@ class Database(AsyncDatabase):
                 callback(word_lists)
 
     def get_word_list(self, list_id, cb):
-        cb_id = self.build_id(list_id)
-        self.callbacks[cb_id] = cb
+        cb_id = self.add_callback(cb, list_id)
 
         self.db.batch({cb_id: ['SELECT id, title, words FROM list WHERE id = %s;',
                                (list_id,)]},
@@ -115,8 +116,7 @@ class Database(AsyncDatabase):
             callback(word_list)
 
     def create_list(self, list_name, list_elements, cb):
-        cb_id = self.build_id(list_name)
-        self.callbacks[cb_id] = cb
+        cb_id = self.add_callback(cb, list_name)
 
         self.db.batch({cb_id: ['INSERT INTO list (title, words) VALUES (%s, %s)',
                                (list_name, json.dumps(list_elements))]},
