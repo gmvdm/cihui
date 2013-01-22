@@ -19,16 +19,28 @@ import os
 
 class Database:
     def __init__(self, db_url, db=None):
-        self.lists_counter = 0
+        self.callback_counter = 0
         self.callbacks = {}
-        self.list_callbacks = {}
-        self.create_list_callbacks = {}
-        self.get_word_list_callbacks = {}
+
         if db is not None:
             self.db = db
         else:
             settings = database_url.build_settings_from_dburl(db_url)
             self.db = momoko.AsyncClient(settings)
+
+    def build_id(self, rock=''):
+        cb_id = self.callback_counter
+        self.callback_counter += 1
+        return '%d|%s' % (cb_id, rock)
+
+    def get_callback(self, cb_id):
+        callback = self.callbacks.get(cb_id, None)
+        _, rock = cb_id.split('|', 2)
+
+        if callback is not None:
+            del self.callbacks[cb_id]
+
+        return callback, rock
 
     def authenticate_api_user(self, user, passwd):
         valid_user = os.environ.get('API_USER', 'user')
@@ -37,35 +49,32 @@ class Database:
         return (user == valid_user and passwd == valid_passwd)
 
     def get_account(self, email, callback):
-        self.callbacks[email] = callback
-        self.db.batch({email: ['SELECT * FROM account WHERE email = %s;', (email,)]},
+        cb_id = self.build_id(email)
+
+        self.callbacks[cb_id] = callback
+        self.db.batch({cb_id: ['SELECT * FROM account WHERE email = %s;', (email,)]},
                       callback=self._on_get_account_response)
 
     def _on_get_account_response(self, cursors):
         for key, cursor in cursors.items():
-            # TODO(gmwils) remove callback before calling
-            # XXX(gmwils) self.callbacks could grow unbounded, may need compacting dict
+            callback, email = self.get_callback(key)
+
             if len(cursor) == 0:
-                self.callbacks[key](None)
+                callback(None)
             else:
                 # TODO(gmwils) build an account object
-                self.callbacks[key](cursor.fetchall())
+                callback(cursor.fetchall())
 
     def get_lists(self, cb):
-        counter = self.lists_counter
-        self.lists_counter = counter + 1
-        self.list_callbacks[counter] = cb
+        cb_id = self.build_id()
+        self.callbacks[cb_id] = cb
 
-        self.db.batch({counter: ['SELECT id, title FROM list ORDER BY created_at DESC;', ()]},
+        self.db.batch({cb_id: ['SELECT id, title FROM list ORDER BY created_at DESC;', ()]},
                       callback=self._on_get_lists_response)
 
     def _on_get_lists_response(self, cursors):
         for key, cursor in cursors.items():
-            callback = self.list_callbacks.get(key, None)
-            if callback is None:
-                continue
-
-            del self.list_callbacks[key]
+            callback, _ = self.get_callback(key)
 
             if cursor is None or cursor.rowcount == 0:
                 logging.warning('No lists found in database')
@@ -78,18 +87,16 @@ class Database:
                 callback(word_lists)
 
     def get_word_list(self, list_id, cb):
-        self.get_word_list_callbacks[list_id] = cb
-        self.db.batch({list_id: ['SELECT id, title, words FROM list WHERE id = %s;',
+        cb_id = self.build_id(list_id)
+        self.callbacks[cb_id] = cb
+
+        self.db.batch({cb_id: ['SELECT id, title, words FROM list WHERE id = %s;',
                                  (list_id,)]},
                       callback=self._on_get_word_list_response)
 
     def _on_get_word_list_response(self, cursors):
         for key, cursor in cursors.items():
-            callback = self.get_word_list_callbacks.get(key, None)
-            if callback is None:
-                continue
-
-            del self.get_word_list_callbacks[key]
+            callback, list_id = self.get_callback(key)
 
             if cursor.rowcount != 1:
                 logging.warning('Invalid response for get_word_list(%s)', key)
@@ -105,20 +112,20 @@ class Database:
             callback(word_list)
 
     def create_list(self, list_name, list_elements, cb):
-        self.create_list_callbacks[list_name] = cb
-        self.db.batch({list_name: ['INSERT INTO list (title, words) VALUES (%s, %s)',
-                                   (list_name, json.dumps(list_elements))]},
+        cb_id = self.build_id(list_name)
+        self.callbacks[cb_id] = cb
+
+        self.db.batch({cb_id: ['INSERT INTO list (title, words) VALUES (%s, %s)',
+                               (list_name, json.dumps(list_elements))]},
                       callback=self._on_create_list_response)
 
     def _on_create_list_response(self, cursors):
         for key, cursor in cursors.items():
-            callback = self.create_list_callbacks.get(key, None)
+            callback, list_name = self.get_callback(key)
 
             if callback is None:
                 # XXX(gmwils) should log an error here
                 continue
-
-            del self.create_list_callbacks[key]
 
             # TODO(gmwils) determine success/fail of insert
             callback(True)
