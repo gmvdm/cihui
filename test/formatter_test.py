@@ -36,6 +36,3 @@ class TestTabWordFormmater(unittest.TestCase):
     def test_word_without_description(self):
         word = [u'大', 'da']
         self.assertEqual(u'大\t\tda', formatter.format_word_as_tsv(word))
-
-
-
