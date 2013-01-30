@@ -32,17 +32,31 @@ class MainHandler(BaseHandler):
 class WordListHandler(BaseHandler):
     @tornado.web.asynchronous
     def get(self, list_id, list_format):
+        callback = self.received_list
+
         if list_format == '.csv':
-            self.db.get_word_list(int(list_id), self.received_csv_list)
-        else:
-            self.db.get_word_list(int(list_id), self.received_list)
+            callback = self.received_csv_list
+        elif list_format == '.tsv':
+            callback = self.received_tsv_list
+
+        self.db.get_word_list(int(list_id), callback)
 
     @tornado.web.asynchronous
     def received_csv_list(self, word_list):
-        self.set_header('Content-Type', 'text/csv')
+        self.set_header('Content-Type', 'text/csv; charset=utf-8')
         self.set_status(200)
         for word in word_list['words']:
-            self.write(u'"%s","%s","%s"\n' % (word[0], word[1], formatter.format_description(word[2])))
+            self.write(u'%s\n' % (formatter.format_word_as_csv(word)))
+
+        self.finish()
+
+    @tornado.web.asynchronous
+    def received_tsv_list(self, word_list):
+        self.set_header('Content-Type', 'text/tsv; charset=utf-8')
+        self.set_status(200)
+        for word in word_list['words']:
+            self.write(u'%s\n' % (formatter.format_word_as_tsv(word)))
+
         self.finish()
 
     @tornado.web.asynchronous

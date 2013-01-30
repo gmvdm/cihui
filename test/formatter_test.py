@@ -28,5 +28,14 @@ class TestCSVWordFormatter(unittest.TestCase):
         self.assertEqual(u'"大","da",""', formatter.format_word_as_csv(word))
 
 
+class TestTabWordFormmater(unittest.TestCase):
+    def test_basic_formatting(self):
+        word = [u'大', 'da', ['big']]
+        self.assertEqual(u'大\tbig\tda', formatter.format_word_as_tsv(word))
+
+    def test_word_without_description(self):
+        word = [u'大', 'da']
+        self.assertEqual(u'大\t\tda', formatter.format_word_as_tsv(word))
+
 
 
