@@ -21,7 +21,7 @@ class TestURIStub(unittest.TestCase):
 
     def test_chinese_characters(self):
         uri_string = uri.generate_stub(123, u'Word List: 小禺言')
-        self.assertEqual(uri_string, '123-word-list')
+        self.assertEqual(uri_string, '123-word-list-xiao-yu-yan')
 
 
 if __name__ == '__main__':
