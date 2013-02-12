@@ -2,10 +2,26 @@
 
 body {
     text-rendering: optimizeLegibility;
-    font-size: 14px;
+    font-size: 16px;
     font-family: Helvetica, Arial, Verdana, sans-serif;
     color: #333;
+    background-color: #ccc;
+}
+
+.main {
+    width: 40em;
+    margin: 0 auto 0;
     background-color: white;
+    padding: 2em;
+}
+
+.content {
+    padding-bottom: 3em;
+}
+
+.copy p {
+    text-align: right;
+    font-size: 0.8em;
 }
 
 li.word {

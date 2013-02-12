@@ -19,23 +19,25 @@
 </head>
 
 <body>
-  <div id='nav'>
+  <div class='nav'>
     <h3><a href='/'>CiHui</a></h3>
   </div>
-  <div id="header">
-    {% block header %}{% end %}
-  </div>
+  <div class="main">
+    <div class="header">
+      {% block header %}{% end %}
+    </div>
 
-  <div id="content">
-    {% block content %}{% end %}
-  </div>
+    <div class="content">
+      {% block content %}{% end %}
+    </div>
 
-  <div id="footer">
-    {% block footer %}{% end %}
-  </div>
+    <div class="footer">
+      {% block footer %}{% end %}
+    </div>
 
-  <div id="copy">
-    <hr/>
-    <p>&copy; 2012 CiHui</p>
+    <div class="copy">
+      <hr/>
+      <p>&copy; 2012 CiHui</p>
+    </div>
   </div>
 </body> </html>
