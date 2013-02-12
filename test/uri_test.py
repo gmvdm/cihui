@@ -15,13 +15,19 @@ class TestURIStub(unittest.TestCase):
         uri_string = uri.generate_stub(123)
         self.assertEqual(uri_string, '123')
 
+
+class TestURITitleStub(unittest.TestCase):
     def test_title_with_punctuation(self):
-        uri_string = uri.generate_stub(123, '   TiTLe!#%@%  CaSE!!  ')
-        self.assertEqual(uri_string, '123-title-case')
+        stub = uri.title_to_stub('   TiTLe!#%@%  CaSE!!  ')
+        self.assertEqual(stub, 'title-case')
 
     def test_chinese_characters(self):
-        uri_string = uri.generate_stub(123, u'Word List: 小禺言')
-        self.assertEqual(uri_string, '123-word-list-xiao-yu-yan')
+        stub = uri.title_to_stub(u'Word List: 小禺言')
+        self.assertEqual(stub, 'word-list-xiao-yu-yan')
+
+    def test_non_unicode_chinese_characters(self):
+        stub = uri.title_to_stub('北京')
+        self.assertEqual(stub, 'bei-jing')
 
 
 if __name__ == '__main__':
