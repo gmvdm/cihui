@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
+from cihui import api_handler
 from cihui import handler
 
 import os
@@ -24,8 +25,8 @@ class CiHuiApplication(tornado.web.Application):
 
         handlers = [(r'/', handler.MainHandler, dict(database=self.db)),
                     (r'/list/([0-9]+)[^\.]*(\.?\w*)', handler.WordListHandler, dict(database=self.db)),
-                    (r'/api/account', handler.APIAccountHandler, dict(database=self.db)),
-                    (r'/api/list', handler.APIListHandler, dict(database=self.db)),
+                    (r'/api/account', api_handler.APIAccountHandler, dict(database=self.db)),
+                    (r'/api/list', api_handler.APIListHandler, dict(database=self.db)),
                     ]
 
         tornado.web.Application.__init__(self, handlers, **settings)
