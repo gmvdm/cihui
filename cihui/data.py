@@ -2,6 +2,8 @@
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
 from cihui import database_url
+
+import datetime
 import json
 import logging
 import momoko
@@ -74,7 +76,7 @@ class Database(AsyncDatabase):
     def get_lists(self, cb):
         cb_id = self.add_callback(cb)
 
-        self.db.batch({cb_id: ['SELECT id, title FROM list ORDER BY created_at DESC;', ()]},
+        self.db.batch({cb_id: ['SELECT id, title FROM list ORDER BY modified_at DESC;', ()]},
                       callback=self._on_get_lists_response)
 
     def _on_get_lists_response(self, cursors):
@@ -136,8 +138,10 @@ class Database(AsyncDatabase):
         cb_id = self.add_callback(cb, list_name)
 
         if list_exists:
-            self.db.batch({cb_id: ['UPDATE list SET words=%s WHERE title=%s',
-                                   (json.dumps(list_elements), list_name)]},
+            self.db.batch({cb_id: ['UPDATE list SET words=%s, modified_at=%s WHERE title=%s',
+                                   (json.dumps(list_elements),
+                                    datetime.datetime.now(),
+                                    list_name)]},
                           callback=self._on_create_list_response)
 
         else:
