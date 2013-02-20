@@ -1,0 +1,6 @@
+BEGIN;
+
+ALTER TABLE list
+      ADD COLUMN modified_at TIMESTAMP DEFAULT NOW();
+
+COMMIT;
