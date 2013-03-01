@@ -9,7 +9,7 @@ from cihui import app
 
 class Data:
     def get_lists(self, callback):
-        callback([{'id': 123, 'title': 'list123'}])
+        callback([{'id': 123, 'title': 'list123', 'stub': 'test-stub'}])
 
 
 class DisplayWordListsTest(AsyncHTTPTestCase):
@@ -26,6 +26,7 @@ class DisplayWordListsTest(AsyncHTTPTestCase):
 
         self.assertEqual(200, response.code)
         self.assertIn('list123', response.body)
+        self.assertIn('123-test-stub', response.body)
 
     def test_invalid_url(self):
         self.http_client.fetch(self.get_url('/fish'), self.stop)

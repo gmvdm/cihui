@@ -8,7 +8,7 @@ import requests
 
 if __name__ == '__main__':
     payload = {'title': u'大家的 word list from 北京', 'words': [[u'大', u'dà', ['big']],
-                                                 [u'小', u'xiao', ['small']]]}
+                                                                 [u'小', u'xiao', ['small']]]}
     r = requests.post('http://localhost:5000/api/list',
                       data=json.dumps(payload),
                       auth=('user', 'secret'))

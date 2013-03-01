@@ -83,6 +83,10 @@ class ListTest(APITestBase):
 
         self.assertEqual(201, response.code)
 
+    def test_update_existing_list(self):
+        # TODO(gmwils): fill in the test
+        pass
+
     def test_fail_on_create_empty_list(self):
         data = self.json_encode_data({'title': 'Test List', 'words': ''})
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
@@ -112,6 +116,3 @@ class ListTest(APITestBase):
         self.assertEqual(500, response.code)
         self.assertIn('Missing title', response.body)
 
-    def test_update_existing_list(self):
-        # TODO(gmwils): fill in the test
-        pass

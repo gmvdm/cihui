@@ -2,6 +2,7 @@
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
 from cihui import database_url
+from cihui import uri
 
 import datetime
 import json
@@ -76,7 +77,7 @@ class Database(AsyncDatabase):
     def get_lists(self, cb):
         cb_id = self.add_callback(cb)
 
-        self.db.batch({cb_id: ['SELECT id, title FROM list ORDER BY modified_at DESC;', ()]},
+        self.db.batch({cb_id: ['SELECT id, title, stub FROM list ORDER BY modified_at DESC;', ()]},
                       callback=self._on_get_lists_response)
 
     def _on_get_lists_response(self, cursors):
@@ -89,7 +90,8 @@ class Database(AsyncDatabase):
             else:
                 word_lists = []
                 for word_list in cursor:
-                    word_lists.append({'id': word_list[0], 'title': word_list[1]})
+                    word_lists.append({'id': word_list[0], 'title': word_list[1],
+                                       'stub': word_list[2]})
 
                 callback(word_lists)
 
@@ -138,15 +140,20 @@ class Database(AsyncDatabase):
         cb_id = self.add_callback(cb, list_name)
 
         if list_exists:
-            self.db.batch({cb_id: ['UPDATE list SET words=%s, modified_at=%s WHERE title=%s',
-                                   (json.dumps(list_elements),
-                                    datetime.datetime.now(),
-                                    list_name)]},
+            self.db.batch(
+                {cb_id: ['UPDATE list SET words=%s, modified_at=%s, stub=%s WHERE title=%s',
+                         (json.dumps(list_elements),
+                          datetime.datetime.now(),
+                          uri.title_to_stub(list_name),
+                          list_name)]},
                           callback=self._on_create_list_response)
 
         else:
-            self.db.batch({cb_id: ['INSERT INTO list (title, words) VALUES (%s, %s)',
-                                   (list_name, json.dumps(list_elements))]},
+            self.db.batch(
+                {cb_id: ['INSERT INTO list (title, words, stub) VALUES (%s, %s, %s)',
+                         (list_name,
+                          json.dumps(list_elements),
+                          uri.title_to_stub(list_name))]},
                           callback=self._on_create_list_response)
 
     def _on_create_list_response(self, cursors):

@@ -6,7 +6,6 @@ import functools
 import json
 import tornado.web
 
-from cihui import uri
 from cihui import formatter
 
 
@@ -22,7 +21,11 @@ class MainHandler(BaseHandler):
 
     def received_lists(self, word_lists):
         def add_stub(word_list):
-            word_list['stub'] = uri.generate_stub(word_list['id'], word_list['title'])
+            if word_list.get('stub'):
+                word_list['stub'] = '%s-%s' % ( word_list['id'], word_list['stub'])
+            else:
+                word_list['stub'] = word_list['id']
+
             return word_list
 
         word_lists = map(add_stub, word_lists)

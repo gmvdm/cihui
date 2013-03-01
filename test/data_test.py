@@ -61,6 +61,7 @@ class CreateListTest(BaseDataTest):
         self.database.create_list('Test List', [], self.callback)
         self.db.batch.assert_called_once()
         self.assertIn('INSERT', str(self.db.batch.call_args))
+        self.assertIn('test-list', str(self.db.batch.call_args))
         self.assertEqual(self.database.callbacks['0|Test List'], self.callback)
 
     def test_create_word_list_sql(self):
@@ -73,6 +74,7 @@ class CreateListTest(BaseDataTest):
         self.database.create_list('Test List', [], self.callback, True)
         self.db.batch.assert_called_once()
         self.assertIn('UPDATE', str(self.db.batch.call_args))
+        self.assertIn('test-list', str(self.db.batch.call_args))
         self.assertEqual(self.database.callbacks['0|Test List'], self.callback)
 
     def test_created_list(self):

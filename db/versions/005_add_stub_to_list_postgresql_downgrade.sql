@@ -1,0 +1,6 @@
+BEGIN;
+
+ALTER TABLE list
+      DROP COLUMN stub;
+
+COMMIT;
