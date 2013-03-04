@@ -15,7 +15,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == '--debug':
         debugMode = True
 
-    application = app.CiHuiApplication(data.Database(db_url),
+    application = app.CiHuiApplication(data.AccountData(db_url),
+                                       data.ListData(db_url),
                                        os.environ.get('COOKIE_SECRET', None),
                                        debug=debugMode
                                        )

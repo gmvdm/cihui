@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
+import mock
 import unittest
 
 from tornado.testing import AsyncHTTPTestCase
 from cihui import app
 
 
-class Data:
+class ListData:
     def get_lists(self, callback):
         callback([{'id': 123, 'title': 'list123', 'stub': 'test-stub'}])
 
 
 class DisplayWordListsTest(AsyncHTTPTestCase):
     def get_app(self):
-        self.db = Data()
-        return app.CiHuiApplication(self.db)
+        self.account_db = mock.Mock()
+        self.list_db = ListData()
+        return app.CiHuiApplication(self.account_db, self.list_db)
 
     def setUp(self):
         AsyncHTTPTestCase.setUp(self)

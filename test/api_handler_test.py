@@ -13,8 +13,9 @@ from cihui import app
 # TODO(gmwils): add tests for authentication for the API
 class APITestBase(AsyncHTTPTestCase):
     def get_app(self):
-        self.data_layer = mock.Mock()
-        return app.CiHuiApplication(self.data_layer)
+        self.account_data_layer = mock.Mock()
+        self.list_data_layer = mock.Mock()
+        return app.CiHuiApplication(self.account_data_layer, self.list_data_layer)
 
     def setUp(self):
         AsyncHTTPTestCase.setUp(self)
@@ -37,8 +38,9 @@ class AccountTest(APITestBase):
             def authenticate_api_user(self, user, passwd):
                 return True
 
-        self.data_layer = Data()
-        return app.CiHuiApplication(self.data_layer)
+        self.account_data_layer = Data()
+        self.list_data_layer = mock.Mock()
+        return app.CiHuiApplication(self.account_data_layer, self.list_data_layer)
 
     def test_find_or_create_account(self):
         data = self.url_encode_data({'email': 'test@example.com'})
@@ -58,18 +60,20 @@ class AccountTest(APITestBase):
 
 class ListTest(APITestBase):
     def get_app(self):
-        class Data:
-            def create_list(self, list_name, words, callback, exists=False):
-                callback(True)
-
+        class AccountData:
             def authenticate_api_user(self, user, passwd):
                 return True
+
+        class ListData:
+            def create_list(self, list_name, words, callback, exists=False):
+                callback(True)
 
             def list_exists(self, list_name, callback):
                 callback(True)
 
-        self.data_layer = Data()
-        return app.CiHuiApplication(self.data_layer)
+        self.account_data_layer = AccountData()
+        self.list_data_layer = ListData()
+        return app.CiHuiApplication(self.account_data_layer, self.list_data_layer)
 
     def test_create_list(self):
         data = self.json_encode_data({'title': 'Test List',

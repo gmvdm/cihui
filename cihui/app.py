@@ -9,8 +9,14 @@ import tornado.web
 
 
 class CiHuiApplication(tornado.web.Application):
-    def __init__(self, data_layer, cookie_secret=None, debug=False):
-        self.db = data_layer
+    def __init__(self,
+                 account_database,
+                 list_database,
+                 cookie_secret=None,
+                 debug=False):
+
+        self.account_db = account_database
+        self.list_db = list_database
 
         settings = {'static_path': os.path.join(os.path.dirname(__file__), '../static'),
                     'template_path': os.path.join(os.path.dirname(__file__), '../templates'),
@@ -23,10 +29,10 @@ class CiHuiApplication(tornado.web.Application):
         else:
             settings['cookie_secret'] = cookie_secret
 
-        handlers = [(r'/', handler.MainHandler, dict(database=self.db)),
-                    (r'/list/([0-9]+)[^\.]*(\.?\w*)', handler.WordListHandler, dict(database=self.db)),
-                    (r'/api/account', api_handler.APIAccountHandler, dict(database=self.db)),
-                    (r'/api/list', api_handler.APIListHandler, dict(database=self.db)),
+        handlers = [(r'/', handler.MainHandler, dict(list_db=self.list_db)),
+                    (r'/list/([0-9]+)[^\.]*(\.?\w*)', handler.WordListHandler, dict(list_db=self.list_db)),
+                    (r'/api/account', api_handler.APIAccountHandler, dict(account_db=self.account_db)),
+                    (r'/api/list', api_handler.APIListHandler, dict(account_db=self.account_db, list_db=self.list_db)),
                     ]
 
         tornado.web.Application.__init__(self, handlers, **settings)

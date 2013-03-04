@@ -12,6 +12,9 @@ from cihui import uri
 
 
 class APIHandler(handler.BaseHandler):
+    def initialize(self, account_db):
+        self.account_db = account_db
+
     def check_xsrf_cookie(self):
         """ Disable cross site cookies on the API methods """
         pass
@@ -44,7 +47,7 @@ class APIHandler(handler.BaseHandler):
         return False
 
     def authenticate_api_user(self, user, passwd):
-        return self.db.authenticate_api_user(user, passwd)
+        return self.account_db.authenticate_api_user(user, passwd)
 
 
 class APIAccountHandler(APIHandler):
@@ -53,7 +56,7 @@ class APIAccountHandler(APIHandler):
         email = self.get_argument('email', None)
 
         if email is not None:
-            self.db.get_account(email, self.got_account)
+            self.account_db.get_account(email, self.got_account)
         else:
             self.got_account(None)
 
@@ -61,7 +64,7 @@ class APIAccountHandler(APIHandler):
     def post(self):
         email = self.get_argument('email', 'No data received')
 
-        self.db.get_account(email, self.got_account)
+        self.account_db.get_account(email, self.got_account)
 
     def got_account(self, account):
         if account is not None:
@@ -74,6 +77,10 @@ class APIAccountHandler(APIHandler):
 
 
 class APIListHandler(APIHandler):
+    def initialize(self, account_db, list_db):
+        self.account_db = account_db
+        self.list_db = list_db
+
     @tornado.web.asynchronous
     def post(self):
         body = json.loads(self.request.body)
@@ -89,10 +96,10 @@ class APIListHandler(APIHandler):
             return
 
         cb = functools.partial(self.on_list_exists, list_name, words)
-        self.db.list_exists(list_name, cb)
+        self.list_db.list_exists(list_name, cb)
 
     def on_list_exists(self, list_name, words, exists):
-        self.db.create_list(list_name, words, self.created_list, exists)
+        self.list_db.create_list(list_name, words, self.created_list, exists)
 
     def created_list(self, success, reason=None):
         if success:

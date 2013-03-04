@@ -47,10 +47,9 @@ class AsyncDatabase(BaseDatabase):
             self.db = momoko.AsyncClient(settings)
 
 
-# TODO(gmwils) refactor into multiple stores (Account, List)
-class Database(AsyncDatabase):
+class AccountData(AsyncDatabase):
     def __init__(self, db_url, db=None):
-        super(Database, self).__init__(db_url, db)
+        super(AccountData, self).__init__(db_url, db)
 
     def authenticate_api_user(self, user, passwd):
         valid_user = os.environ.get('API_USER', 'user')
@@ -73,6 +72,11 @@ class Database(AsyncDatabase):
             else:
                 # TODO(gmwils) build an account object
                 callback(cursor.fetchall())
+
+
+class ListData(AsyncDatabase):
+    def __init__(self, db_url, db=None):
+        super(ListData, self).__init__(db_url, db)
 
     def get_lists(self, cb):
         cb_id = self.add_callback(cb)

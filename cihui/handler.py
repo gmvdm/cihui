@@ -10,14 +10,14 @@ from cihui import formatter
 
 
 class BaseHandler(tornado.web.RequestHandler):
-    def initialize(self, database):
-        self.db = database
+    def initialize(self, list_db):
+        self.list_db = list_db
 
 
 class MainHandler(BaseHandler):
     @tornado.web.asynchronous
     def get(self):
-        self.db.get_lists(self.received_lists)
+        self.list_db.get_lists(self.received_lists)
 
     def received_lists(self, word_lists):
         def add_stub(word_list):
@@ -35,17 +35,18 @@ class MainHandler(BaseHandler):
 class WordListHandler(BaseHandler):
     @tornado.web.asynchronous
     def get(self, list_id, list_format):
-        callback = self.received_list
+        callback = self.render_html_list
 
         if list_format == '.csv':
             callback = self.received_csv_list
         elif list_format == '.tsv':
             callback = self.received_tsv_list
 
-        self.db.get_word_list(int(list_id), callback)
+        self.list_db.get_word_list(int(list_id), callback)
 
     @tornado.web.asynchronous
     def received_csv_list(self, word_list):
+        """ Return list in CSV format """
         self.set_header('Content-Type', 'text/csv; charset=utf-8')
         self.set_status(200)
         for word in word_list['words']:
@@ -55,6 +56,7 @@ class WordListHandler(BaseHandler):
 
     @tornado.web.asynchronous
     def received_tsv_list(self, word_list):
+        """ Return list in Tab separated format """
         self.set_header('Content-Type', 'text/tsv; charset=utf-8')
         self.set_status(200)
         for word in word_list['words']:
@@ -63,7 +65,8 @@ class WordListHandler(BaseHandler):
         self.finish()
 
     @tornado.web.asynchronous
-    def received_list(self, word_list):
+    def render_html_list(self, word_list):
+        """ Render list as HTML page """
         def add_description(entry):
             if entry is not None:
                 entry.append(formatter.format_description(entry[2]))

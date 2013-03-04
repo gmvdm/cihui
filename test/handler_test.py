@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
+import mock
 import unittest
 
 from tornado.testing import AsyncHTTPTestCase
 from cihui import app
 
 
-class Data:
+class ListData:
     def get_word_list(self, list_id, callback):
         if list_id not in [404]:
             words = [[u'大', 'da', ['big']], ]
@@ -17,10 +18,11 @@ class Data:
 
 
 class DisplayWordListTest(AsyncHTTPTestCase):
-
     def get_app(self):
-        self.db = Data()
-        return app.CiHuiApplication(self.db)
+        self.account_db = mock.Mock()
+        self.list_db = ListData()
+
+        return app.CiHuiApplication(self.account_db, self.list_db)
 
     def setUp(self):
         AsyncHTTPTestCase.setUp(self)
