@@ -6,18 +6,18 @@ import mock
 import unittest
 import urllib
 
+import support
+from cihui import api_handler
+
 from tornado.testing import AsyncHTTPTestCase
-from cihui import app
 
 
 # TODO(gmwils): add tests for authentication for the API
-class APITestBase(AsyncHTTPTestCase):
-    def get_app(self):
+class APITestBase(support.HandlerTestCase):
+    def setUp(self):
         self.account_data_layer = mock.Mock()
         self.list_data_layer = mock.Mock()
-        return app.CiHuiApplication(self.account_data_layer, self.list_data_layer)
 
-    def setUp(self):
         AsyncHTTPTestCase.setUp(self)
 
     def url_encode_data(self, data):
@@ -30,7 +30,7 @@ class APITestBase(AsyncHTTPTestCase):
 
 
 class AccountTest(APITestBase):
-    def get_app(self):
+    def get_handlers(self):
         class Data:
             def get_account(self, email, callback):
                 callback({'email': email, 'id': 'id123'})
@@ -39,8 +39,7 @@ class AccountTest(APITestBase):
                 return True
 
         self.account_data_layer = Data()
-        self.list_data_layer = mock.Mock()
-        return app.CiHuiApplication(self.account_data_layer, self.list_data_layer)
+        return [(r'/api/account', api_handler.APIAccountHandler, dict(account_db=self.account_data_layer))]
 
     def test_find_or_create_account(self):
         data = self.url_encode_data({'email': 'test@example.com'})
@@ -59,7 +58,7 @@ class AccountTest(APITestBase):
 
 
 class ListTest(APITestBase):
-    def get_app(self):
+    def get_handlers(self):
         class AccountData:
             def authenticate_api_user(self, user, passwd):
                 return True
@@ -73,7 +72,11 @@ class ListTest(APITestBase):
 
         self.account_data_layer = AccountData()
         self.list_data_layer = ListData()
-        return app.CiHuiApplication(self.account_data_layer, self.list_data_layer)
+
+        return [(r'/api/list',
+                 api_handler.APIListHandler,
+                 dict(account_db=self.account_data_layer,
+                      list_db=self.list_data_layer))]
 
     def test_create_list(self):
         data = self.json_encode_data({'title': 'Test List',
@@ -119,4 +122,3 @@ class ListTest(APITestBase):
 
         self.assertEqual(500, response.code)
         self.assertIn('Missing title', response.body)
-

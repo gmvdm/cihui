@@ -2,30 +2,39 @@
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
 import mock
+import os
+import support
 import unittest
 
+from cihui import handler
+
 from tornado.testing import AsyncHTTPTestCase
-from cihui import app
 
 
-class ListData:
-    def get_word_list(self, list_id, callback):
-        if list_id not in [404]:
-            words = [[u'大', 'da', ['big']], ]
-            callback({'id': list_id, 'title': 'list_%d' % list_id, 'words': words})
-        else:
-            callback(None)
+class DisplayWordListTest(support.HandlerTestCase):
+    def setUp(self):
+        class ListData:
+            def get_word_list(self, list_id, callback):
+                if list_id not in [404]:
+                    words = [[u'大', 'da', ['big']], ]
+                    callback({'id': list_id,
+                              'title': 'list_%d' % list_id,
+                              'words': words})
+                else:
+                    callback(None)
 
-
-class DisplayWordListTest(AsyncHTTPTestCase):
-    def get_app(self):
-        self.account_db = mock.Mock()
         self.list_db = ListData()
 
-        return app.CiHuiApplication(self.account_db, self.list_db)
-
-    def setUp(self):
         AsyncHTTPTestCase.setUp(self)
+
+    def get_handlers(self):
+        return [(r'/list/([0-9]+)[^\.]*(\.?\w*)',
+                 handler.WordListHandler,
+                 dict(list_db=self.list_db))]
+
+    def get_app_kwargs(self):
+        return {'static_path': os.path.join(os.path.dirname(__file__), '../static'),
+                'template_path': os.path.join(os.path.dirname(__file__), '../templates')}
 
     def test_show_word_list(self):
         self.http_client.fetch(self.get_url('/list/123'), self.stop)
