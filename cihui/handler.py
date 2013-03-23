@@ -7,6 +7,7 @@ import json
 import tornado.web
 
 from cihui import formatter
+from tornado import gen
 
 
 class BaseHandler(tornado.web.RequestHandler):
@@ -16,10 +17,10 @@ class BaseHandler(tornado.web.RequestHandler):
 
 class MainHandler(BaseHandler):
     @tornado.web.asynchronous
+    @gen.engine
     def get(self):
-        self.list_db.get_lists(self.received_lists)
+        word_lists = yield gen.Task(self.list_db.get_lists)
 
-    def received_lists(self, word_lists):
         def add_stub(word_list):
             if word_list.get('stub'):
                 word_list['stub'] = '%s-%s' % ( word_list['id'], word_list['stub'])

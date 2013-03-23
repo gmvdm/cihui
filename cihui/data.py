@@ -78,8 +78,8 @@ class ListData(AsyncDatabase):
     def __init__(self, db_url, db=None):
         super(ListData, self).__init__(db_url, db)
 
-    def get_lists(self, cb):
-        cb_id = self.add_callback(cb)
+    def get_lists(self, callback):
+        cb_id = self.add_callback(callback)
 
         self.db.batch({cb_id: ['SELECT id, title, stub FROM list ORDER BY modified_at DESC;', ()]},
                       callback=self._on_get_lists_response)
@@ -99,8 +99,8 @@ class ListData(AsyncDatabase):
 
                 callback(word_lists)
 
-    def get_word_list(self, list_id, cb):
-        cb_id = self.add_callback(cb, list_id)
+    def get_word_list(self, list_id, callback):
+        cb_id = self.add_callback(callback, list_id)
 
         self.db.batch({cb_id: ['SELECT id, title, words FROM list WHERE id = %s;',
                                (list_id,)]},
@@ -123,8 +123,8 @@ class ListData(AsyncDatabase):
             word_list = {'id': result[0], 'title': result[1], 'words': words}
             callback(word_list)
 
-    def list_exists(self, list_name, cb):
-        cb_id = self.add_callback(cb, list_name)
+    def list_exists(self, list_name, callback):
+        cb_id = self.add_callback(callback, list_name)
         self.db.batch({cb_id: ['SELECT count(*) FROM list WHERE title=%s', (list_name,)]},
                       callback=self._on_list_exists)
 
@@ -140,8 +140,8 @@ class ListData(AsyncDatabase):
 
             callback(exists)
 
-    def create_list(self, list_name, list_elements, cb, list_exists=False):
-        cb_id = self.add_callback(cb, list_name)
+    def create_list(self, list_name, list_elements, callback, list_exists=False):
+        cb_id = self.add_callback(callback, list_name)
 
         if list_exists:
             self.db.batch(
