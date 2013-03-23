@@ -6,7 +6,9 @@ import functools
 import json
 import tornado.web
 
+from cihui import atom_formatter
 from cihui import formatter
+
 from tornado import gen
 
 
@@ -15,6 +17,12 @@ class BaseHandler(tornado.web.RequestHandler):
         self.list_db = list_db
 
 
+def make_stub(list_id, stub=''):
+    if stub:
+        return '%s-%s' % (list_id, stub)
+
+    return list_id
+
 class MainHandler(BaseHandler):
     @tornado.web.asynchronous
     @gen.engine
@@ -22,15 +30,26 @@ class MainHandler(BaseHandler):
         word_lists = yield gen.Task(self.list_db.get_lists)
 
         def add_stub(word_list):
-            if word_list.get('stub'):
-                word_list['stub'] = '%s-%s' % ( word_list['id'], word_list['stub'])
-            else:
-                word_list['stub'] = word_list['id']
-
+            word_list['stub'] = make_stub(word_list.get('id'), word_list.get('stub'))
             return word_list
 
         word_lists = map(add_stub, word_lists)
         self.render('index.html', word_lists=word_lists)
+
+
+class AtomHandler(BaseHandler):
+    @tornado.web.asynchronous
+    @gen.engine
+    def get(self):
+        word_lists = yield gen.Task(self.list_db.get_lists)
+        entry_list = []
+        for word_list in word_lists:
+            entry = {'title': word_list.get('title').decode('utf-8'),
+                     'link': '/list/%s' % make_stub(word_list.get('id'), word_list.get('stub'))}
+            entry_list.append(entry)
+
+        self.write(atom_formatter.format_atom(title='CiHui', entries=entry_list))
+        self.finish()
 
 
 class WordListHandler(BaseHandler):

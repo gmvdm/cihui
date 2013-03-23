@@ -13,10 +13,15 @@ def format_atom(title=None, entries=[]):
 
     for entry in entries:
         entry_elem = ElementTree.SubElement(feed_elem, 'entry')
-        for k, v in entry.iteritems():
-            sub_elem = ElementTree.SubElement(entry_elem, k)
-            sub_elem.text = v
+        for key, value in entry.iteritems():
+            if key == 'link':
+                link_elem = ElementTree.SubElement(entry_elem, key,
+                                                   {'href': value,
+                                                    'rel': 'alternate'})
+            else:
+                sub_elem = ElementTree.SubElement(entry_elem, key)
+                sub_elem.text = value
 
-    return ElementTree.tostring(feed_elem)
+    return ElementTree.tostring(feed_elem, encoding='utf-8')
 
 
