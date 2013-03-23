@@ -23,5 +23,3 @@ def format_atom(title=None, entries=[]):
                 sub_elem.text = value
 
     return ElementTree.tostring(feed_elem, encoding='utf-8')
-
-
