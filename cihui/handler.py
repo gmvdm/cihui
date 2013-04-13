@@ -47,7 +47,7 @@ class AtomHandler(BaseHandler):
         word_lists = yield gen.Task(self.list_db.get_lists)
         entry_list = []
         for word_list in word_lists:
-            entry = {'title': word_list.get('title').decode('utf-8'),
+            entry = {'title': word_list.get('title'),
                      'link': '/list/%s' % make_stub(word_list.get('id'), word_list.get('stub'))}
             entry_list.append(entry)
 

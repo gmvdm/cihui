@@ -29,7 +29,7 @@ class AtomFeedTest(support.HandlerTestCase):
         response = self.wait()
 
         self.assertEqual(200, response.code)
-        self.assertIn('Test Item', response.body)
+        self.assertIn(b'Test Item', response.body)
 
 
 

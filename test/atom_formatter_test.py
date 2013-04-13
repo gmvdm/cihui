@@ -9,7 +9,7 @@ import unittest
 
 class TestAtomFormatter(unittest.TestCase):
     def test_empty_list(self):
-        self.assertIn('http://www.w3.org/2005/Atom', atom_formatter.format_atom())
+        self.assertIn(b'http://www.w3.org/2005/Atom', atom_formatter.format_atom())
 
     def test_set_title(self):
         atom_xml = atom_formatter.format_atom(title=u'大 feed title')
