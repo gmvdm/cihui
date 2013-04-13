@@ -28,12 +28,15 @@ class MainHandler(BaseHandler):
     @gen.engine
     def get(self):
         word_lists = yield gen.Task(self.list_db.get_lists)
+        if word_lists is None:
+            word_lists = []
 
         def add_stub(word_list):
             word_list['stub'] = make_stub(word_list.get('id'), word_list.get('stub'))
             return word_list
 
         word_lists = list(map(add_stub, word_lists))
+
         self.render('index.html', word_lists=word_lists)
 
 

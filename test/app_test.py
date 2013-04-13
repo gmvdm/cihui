@@ -40,5 +40,27 @@ class DisplayWordListsTest(AsyncHTTPTestCase):
         self.assertEqual(404, response.code)
 
 
+class NoListData:
+    def get_lists(self, callback):
+        callback(None)
+
+
+class DisplayNoWordListsTest(AsyncHTTPTestCase):
+    def get_app(self):
+        self.account_db = AccountData()
+        self.list_db = NoListData()
+        return app.CiHuiApplication(self.account_db, self.list_db)
+
+    def setUp(self):
+        AsyncHTTPTestCase.setUp(self)
+
+    def test_no_word_lists(self):
+        self.http_client.fetch(self.get_url('/'), self.stop)
+        response = self.wait()
+
+        self.assertEqual(200, response.code)
+        self.assertIn(b'CiHui', response.body)
+
+
 if __name__ == '__main__':
     unittest.main()
