@@ -77,7 +77,7 @@ class CreateListTest(ListDataTest):
         self.assertEqual(self.listdata.callbacks['0|Test List'], self.callback)
 
     def test_create_word_list_sql(self):
-        self.listdata.create_list('Word List', [[u'大', 'da', ['big']], ], self.callback)
+        self.listdata.create_list('Word List', [['大', 'da', ['big']], ], self.callback)
         self.db.batch.assert_called_once()
         self.assertIn('INSERT', str(self.db.batch.call_args))
         self.assertEqual(self.listdata.callbacks['0|Word List'], self.callback)

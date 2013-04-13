@@ -64,7 +64,7 @@ class AccountData(AsyncDatabase):
                       callback=self._on_get_account_response)
 
     def _on_get_account_response(self, cursors):
-        for key, cursor in cursors.items():
+        for key, cursor in list(cursors.items()):
             callback, email = self.get_callback(key)
 
             if len(cursor) == 0:
@@ -85,7 +85,7 @@ class ListData(AsyncDatabase):
                       callback=self._on_get_lists_response)
 
     def _on_get_lists_response(self, cursors):
-        for key, cursor in cursors.items():
+        for key, cursor in list(cursors.items()):
             callback, _ = self.get_callback(key)
 
             if cursor is None or cursor.rowcount == 0:
@@ -107,7 +107,7 @@ class ListData(AsyncDatabase):
                       callback=self._on_get_word_list_response)
 
     def _on_get_word_list_response(self, cursors):
-        for key, cursor in cursors.items():
+        for key, cursor in list(cursors.items()):
             callback, list_id = self.get_callback(key)
 
             if cursor.rowcount != 1:
@@ -129,7 +129,7 @@ class ListData(AsyncDatabase):
                       callback=self._on_list_exists)
 
     def _on_list_exists(self, cursors):
-        for key, cursor in cursors.items():
+        for key, cursor in list(cursors.items()):
             exists = False
             callback, list_name = self.get_callback(key)
 
@@ -161,7 +161,7 @@ class ListData(AsyncDatabase):
                           callback=self._on_create_list_response)
 
     def _on_create_list_response(self, cursors):
-        for key, cursor in cursors.items():
+        for key, cursor in list(cursors.items()):
             callback, list_name = self.get_callback(key)
 
             if callback is None:

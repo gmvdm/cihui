@@ -22,7 +22,7 @@ class TestURITitleStub(unittest.TestCase):
         self.assertEqual(stub, 'title-case')
 
     def test_chinese_characters(self):
-        stub = uri.title_to_stub(u'Word List: 小禺言')
+        stub = uri.title_to_stub('Word List: 小禺言')
         self.assertEqual(stub, 'word-list-xiao-yu-yan')
 
     def test_non_unicode_chinese_characters(self):

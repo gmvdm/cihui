@@ -15,7 +15,7 @@ def build_settings_from_dburl(db_url, min_conn=1, max_conn=20, cleanup_timeout=1
                'USER': 'user',
                'PASSWORD': 'password'}
 
-    for k, v in mapping.items():
+    for k, v in list(mapping.items()):
         settings[v] = db_url_settings[k]
 
     settings['min_conn'] = min_conn

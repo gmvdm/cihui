@@ -4,7 +4,7 @@
 import json
 import mock
 import unittest
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 import support
 from cihui import api_handler
@@ -21,7 +21,7 @@ class APITestBase(support.HandlerTestCase):
         AsyncHTTPTestCase.setUp(self)
 
     def url_encode_data(self, data):
-        self.data = urllib.urlencode(data)
+        self.data = urllib.parse.urlencode(data)
         return self.data
 
     def json_encode_data(self, data):
@@ -80,7 +80,7 @@ class ListTest(APITestBase):
 
     def test_create_list(self):
         data = self.json_encode_data({'title': 'Test List',
-                                      'words': [[u'大', 'da', 'big'], ]
+                                      'words': [['大', 'da', 'big'], ]
                                       })
 
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',

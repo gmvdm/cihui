@@ -1,4 +1,4 @@
-tornado==2.4
+tornado==3.0.1
 
 # Unicode transliteration
 unidecode==0.04.12

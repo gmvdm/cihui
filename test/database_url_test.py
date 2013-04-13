@@ -16,7 +16,7 @@ class TestMapDbUrl(unittest.TestCase):
                         'password': 'pass'}
         settings = database_url.build_settings_from_dburl(url)
 
-        for k, v in expectations.items():
+        for k, v in list(expectations.items()):
             self.assertEqual(settings[k], v)
 
     def test_default_params(self):

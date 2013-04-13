@@ -28,7 +28,7 @@ class MainHandler(BaseHandler):
 
             return word_list
 
-        word_lists = map(add_stub, word_lists)
+        word_lists = list(map(add_stub, word_lists))
         self.render('index.html', word_lists=word_lists)
 
 
@@ -50,7 +50,7 @@ class WordListHandler(BaseHandler):
         self.set_header('Content-Type', 'text/csv; charset=utf-8')
         self.set_status(200)
         for word in word_list['words']:
-            self.write(u'%s\n' % (formatter.format_word_as_csv(word)))
+            self.write('%s\n' % (formatter.format_word_as_csv(word)))
 
         self.finish()
 
@@ -60,7 +60,7 @@ class WordListHandler(BaseHandler):
         self.set_header('Content-Type', 'text/tsv; charset=utf-8')
         self.set_status(200)
         for word in word_list['words']:
-            self.write(u'%s\n' % (formatter.format_word_as_tsv(word)))
+            self.write('%s\n' % (formatter.format_word_as_tsv(word)))
 
         self.finish()
 
@@ -75,7 +75,7 @@ class WordListHandler(BaseHandler):
         if word_list is not None:
             if word_list.get('words') is None:
                 word_list['words'] = []
-            word_list['words'] = map(add_description, word_list['words'])
+            word_list['words'] = list(map(add_description, word_list['words']))
             self.render('word_list.html', word_list=word_list)
         else:
             self.send_error(404)

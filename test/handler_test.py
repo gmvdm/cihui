@@ -16,7 +16,7 @@ class DisplayWordListTest(support.HandlerTestCase):
         class ListData:
             def get_word_list(self, list_id, callback):
                 if list_id not in [404]:
-                    words = [[u'大', 'da', ['big']], ]
+                    words = [['大', 'da', ['big']], ]
                     callback({'id': list_id,
                               'title': 'list_%d' % list_id,
                               'words': words})
