@@ -38,8 +38,8 @@ class APIHandler(handler.BaseHandler):
             self.set_unauthorized_headers()
             return False
 
-        auth_decoded = base64.decodestring(auth_header[6:])
-        user, passwd = auth_decoded.split(':', 2)
+        auth_decoded = base64.decodebytes(bytes(auth_header[6:], encoding='utf-8'))
+        user, passwd = auth_decoded.split(b':', 2)
         if self.authenticate_api_user(user, passwd):
             return True
 
@@ -83,9 +83,10 @@ class APIListHandler(APIHandler):
 
     @tornado.web.asynchronous
     def post(self):
-        body = json.loads(self.request.body)
-        list_name = body.get('title', None)
-        words = body.get('words', None)
+        body_str = self.request.body.decode('utf-8')
+        body_json = json.loads(body_str)
+        list_name = body_json.get('title', None)
+        words = body_json.get('words', None)
 
         if list_name is None:
             self.created_list(False, 'Missing title')

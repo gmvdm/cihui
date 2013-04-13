@@ -17,12 +17,8 @@ def generate_stub(id, title=None):
 
 def title_to_stub(title):
     "Given a multilingual title, generate a uri suitable stub"
-    if type(title) == str:
-        title_stub = title.decode('utf-8')
-    else:
-        title_stub = title
 
-    title_stub = unidecode.unidecode(title_stub)
+    title_stub = unidecode.unidecode(title)
 
     title_stub = title_stub.lower().strip()
 

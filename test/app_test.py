@@ -27,8 +27,8 @@ class DisplayWordListsTest(AsyncHTTPTestCase):
         response = self.wait()
 
         self.assertEqual(200, response.code)
-        self.assertIn('list123', response.body)
-        self.assertIn('123-test-stub', response.body)
+        self.assertIn(b'list123', response.body)
+        self.assertIn(b'123-test-stub', response.body)
 
     def test_invalid_url(self):
         self.http_client.fetch(self.get_url('/fish'), self.stop)

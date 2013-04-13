@@ -50,8 +50,8 @@ class AccountTest(APITestBase):
         response = self.wait()
 
         self.assertEqual(200, response.code)
-        self.assertIn('test@example.com', response.body)
-        self.assertIn('id123', response.body)
+        self.assertIn(b'test@example.com', response.body)
+        self.assertIn(b'id123', response.body)
 
     def test_create_account(self):
         pass
@@ -102,7 +102,7 @@ class ListTest(APITestBase):
         response = self.wait()
 
         self.assertEqual(500, response.code)
-        self.assertIn('No word list', response.body)
+        self.assertIn(b'No word list', response.body)
 
     def test_fail_on_missing_list(self):
         data = self.json_encode_data({'title': 'Test List'})
@@ -121,4 +121,4 @@ class ListTest(APITestBase):
         response = self.wait()
 
         self.assertEqual(500, response.code)
-        self.assertIn('Missing title', response.body)
+        self.assertIn(b'Missing title', response.body)

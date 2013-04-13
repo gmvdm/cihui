@@ -41,7 +41,7 @@ class DisplayWordListTest(support.HandlerTestCase):
         response = self.wait()
 
         self.assertEqual(200, response.code)
-        self.assertIn('list_123', response.body)
+        self.assertIn(b'list_123', response.body)
 
     def test_missing_list(self):
         self.http_client.fetch(self.get_url('/list/404'), self.stop)
@@ -61,7 +61,7 @@ class DisplayWordListTest(support.HandlerTestCase):
 
         self.assertEqual(200, response.code)
         self.assertIn('text/csv', response.headers['Content-Type'])
-        self.assertIn('big', response.body)
+        self.assertIn(b'big', response.body)
 
 
 if __name__ == '__main__':
