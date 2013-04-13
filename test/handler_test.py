@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
-import mock
 import os
 import support
 import unittest
@@ -9,6 +8,29 @@ import unittest
 from cihui import handler
 
 from tornado.testing import AsyncHTTPTestCase
+
+
+class AtomFeedTest(support.HandlerTestCase):
+    def setUp(self):
+        class ListData:
+            def get_lists(self, callback):
+                callback([{'title': 'Test Item'}])
+        self.list_db = ListData()
+        super(AtomFeedTest, self).setUp()
+
+
+    def get_handlers(self):
+        return [(r'/atom.xml',
+                 handler.AtomHandler,
+                 dict(list_db=self.list_db))]
+
+    def test_atom_feed(self):
+        self.http_client.fetch(self.get_url('/atom.xml'), self.stop)
+        response = self.wait()
+
+        self.assertEqual(200, response.code)
+        self.assertIn('Test Item', response.body)
+
 
 
 class DisplayWordListTest(support.HandlerTestCase):

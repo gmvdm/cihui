@@ -2,7 +2,6 @@
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
 import json
-import mock
 import unittest
 import urllib.request, urllib.parse, urllib.error
 
@@ -15,9 +14,6 @@ from tornado.testing import AsyncHTTPTestCase
 # TODO(gmwils): add tests for authentication for the API
 class APITestBase(support.HandlerTestCase):
     def setUp(self):
-        self.account_data_layer = mock.Mock()
-        self.list_data_layer = mock.Mock()
-
         AsyncHTTPTestCase.setUp(self)
 
     def url_encode_data(self, data):

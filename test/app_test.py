@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
-import mock
 import unittest
 
 from tornado.testing import AsyncHTTPTestCase
 from cihui import app
+
+
+class AccountData:
+    pass
 
 
 class ListData:
@@ -15,7 +18,7 @@ class ListData:
 
 class DisplayWordListsTest(AsyncHTTPTestCase):
     def get_app(self):
-        self.account_db = mock.Mock()
+        self.account_db = AccountData()
         self.list_db = ListData()
         return app.CiHuiApplication(self.account_db, self.list_db)
 
