@@ -1,6 +1,0 @@
-BEGIN;
-
-ALTER TABLE list
-      ADD COLUMN words BYTEA;
-
-COMMIT;

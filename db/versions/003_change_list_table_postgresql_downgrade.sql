@@ -1,6 +1,0 @@
-BEGIN;
-
-ALTER TABLE list
-      ALTER COLUMN words TYPE BYTEA;
-
-COMMIT;

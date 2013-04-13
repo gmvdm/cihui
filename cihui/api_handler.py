@@ -40,7 +40,7 @@ class APIHandler(handler.BaseHandler):
 
         auth_decoded = base64.decodebytes(bytes(auth_header[6:], encoding='utf-8'))
         user, passwd = auth_decoded.split(b':', 2)
-        if self.authenticate_api_user(user, passwd):
+        if self.authenticate_api_user(user.decode(), passwd.decode()):
             return True
 
         self.set_unauthorized_headers()

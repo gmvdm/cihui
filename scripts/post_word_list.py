@@ -13,4 +13,4 @@ if __name__ == '__main__':
                       data=json.dumps(payload),
                       auth=('user', 'secret'))
 
-    print r.text
+    print(r.text)
