@@ -32,6 +32,16 @@ class ListDataTest(AsyncHTTPTestCase):
         self.listdata = data.ListData('', self.db)
 
 
+class AuthenticateAccountTest(AccountDataTest):
+    def test_authenticate_basic_account(self):
+        self.assertTrue(
+            self.accountdata.authenticate_api_user('user', 'secret'))
+
+    def test_no_authenticate_basic_account(self):
+        self.assertFalse(
+            self.accountdata.authenticate_api_user('user', 'badpassword'))
+
+
 class GetAccountTest(AccountDataTest):
     def test_get_account_sql(self):
         self.accountdata.get_account('user@example.com', self.callback)
