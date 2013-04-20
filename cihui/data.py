@@ -116,11 +116,16 @@ class ListData(AsyncDatabase):
                 continue
 
             result = cursor.fetchone()
-            words = result[2]
-            if words is not None:
-                words = json.loads(words)
+            word_list = {}
+            if len(result) > 2:
+                word_list['id'] = result[0]
+                word_list['title'] = result[1]
+                words = result[2]
+                if words is not None:
+                    words = json.loads(words)
 
-            word_list = {'id': result[0], 'title': result[1], 'words': words}
+                word_list['words'] = words
+
             callback(word_list)
 
     def list_exists(self, list_name, callback):

@@ -67,6 +67,38 @@ class GetWordListTest(ListDataTest):
         self.db.batch.assert_called_once()
         self.assertEqual(self.listdata.callbacks['0|12'], self.callback)
 
+    def test_got_no_word_list(self):
+        cursor = mock.MagicMock(side_effect=[])
+
+        self.listdata.callbacks['0|'] = self.callback
+        self.listdata._on_get_word_list_response({'0|': cursor})
+
+        self.callback.assert_called_once_with(None)
+
+    def test_got_one_word_list_with_no_words(self):
+        cursor = mock.MagicMock(side_effect=[])
+        cursor.rowcount = 1
+        cursor.fetchone.return_value = tuple([1, 'Test', None])
+
+        self.listdata.callbacks['0|1'] = self.callback
+        self.listdata._on_get_word_list_response({'0|1': cursor})
+
+        self.callback.assert_called_once_with({'id': 1,
+                                               'title': 'Test',
+                                               'words': None})
+
+    def test_got_one_word_list_with_words(self):
+        cursor = mock.MagicMock(side_effect=[])
+        cursor.rowcount = 1
+        cursor.fetchone.return_value = tuple([1, 'Test', '{"key": "value"}'])
+
+        self.listdata.callbacks['0|1'] = self.callback
+        self.listdata._on_get_word_list_response({'0|1': cursor})
+
+        self.callback.assert_called_once_with({'id': 1,
+                                               'title': 'Test',
+                                               'words': {'key': 'value'}})
+
 
 class CreateListTest(ListDataTest):
     def test_create_empty_list_sql(self):
