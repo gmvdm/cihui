@@ -18,6 +18,9 @@ pytest-xdist>=1.8
 pytest-cov
 mock>=1.0.0
 
+# BDD
+selenium
+
 # Scripts
 requests>=0.14.1
 
