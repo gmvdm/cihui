@@ -1,4 +1,5 @@
 tornado==3.0.1
+gunicorn>=0.17.4
 
 # Unicode transliteration
 unidecode==0.04.12
