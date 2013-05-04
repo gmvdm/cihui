@@ -11,7 +11,6 @@ from cihui import api_handler
 from tornado.testing import AsyncHTTPTestCase
 
 
-# TODO(gmwils): add tests for authentication for the API
 class APITestBase(support.HandlerTestCase):
     def setUp(self):
         AsyncHTTPTestCase.setUp(self)
@@ -23,6 +22,46 @@ class APITestBase(support.HandlerTestCase):
     def json_encode_data(self, data):
         self.data = json.dumps(data)
         return self.data
+
+
+class AuthTest(APITestBase):
+    def get_handlers(self):
+        class Data:
+            def authenticate_api_user(self, user, passwd):
+                return (user == 'user' and passwd == 'secret')
+
+        self.data_layer = Data()
+
+        class MainHandler(api_handler.APIHandler):
+            def get(self):
+                self.write("Hello, world")
+
+        return [(r'/api', MainHandler, dict(account_db=self.data_layer))]
+
+    def test_successful_authentication(self):
+        self.http_client.fetch(self.get_url('/api'), self.stop, method='GET',
+                               headers=None, body=None,
+                               auth_username='user', auth_password='secret')
+        response = self.wait()
+
+        self.assertEqual(200, response.code)
+        self.assertIn(b'Hello', response.body)
+
+    def test_failed_authentication(self):
+        self.http_client.fetch(self.get_url('/api'), self.stop, method='GET',
+                               headers=None, body=None,
+                               auth_username='baduser', auth_password='notsecret')
+        response = self.wait()
+
+        self.assertEqual(401, response.code)
+        self.assertNotIn(b'Hello', response.body)
+
+    def test_no_authentication(self):
+        self.http_client.fetch(self.get_url('/api'), self.stop)
+        response = self.wait()
+
+        self.assertEqual(401, response.code)
+        self.assertNotIn(b'Hello', response.body)
 
 
 class AccountTest(APITestBase):
