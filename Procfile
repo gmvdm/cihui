@@ -9,4 +9,5 @@ stats: radon cc --min B -s cihui test
 pep8: find main.py cihui test -name '*.py' | xargs pep8
 
 test: py.test test
-cov: py.test --cov cihui --cov-report term-missing
+int: py.test scripts/test_*
+cov: py.test --cov cihui --cov-report term-missing test
