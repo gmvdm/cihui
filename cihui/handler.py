@@ -99,6 +99,7 @@ class WordListHandler(BaseHandler):
             if word_list.get('words') is None:
                 word_list['words'] = []
             word_list['words'] = list(map(add_description, word_list['words']))
-            self.render('word_list.html', word_list=word_list)
+            word_count = len(word_list['words'])
+            self.render('word_list.html', word_list=word_list, word_count=word_count)
         else:
             self.send_error(404)
