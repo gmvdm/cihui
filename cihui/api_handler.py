@@ -5,6 +5,7 @@ import base64
 import functools
 import json
 import tornado.web
+import unicodedata
 
 from cihui import formatter
 from cihui import handler
@@ -76,6 +77,10 @@ class APIAccountHandler(APIHandler):
         self.finish()
 
 
+def normalize_word_array(word):
+    return [unicodedata.normalize('NFC', entry) for entry in word]
+
+
 class APIListHandler(APIHandler):
     def initialize(self, account_db, list_db):
         self.account_db = account_db
@@ -95,6 +100,8 @@ class APIListHandler(APIHandler):
         if words is None or len(words) == 0:
             self.created_list(False, 'No word list supplied')
             return
+
+        words = [normalize_word_array(word) for word in words]
 
         cb = functools.partial(self.on_list_exists, list_name, words)
         self.list_db.list_exists(list_name, cb)
