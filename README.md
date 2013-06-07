@@ -15,9 +15,9 @@ Run using foreman:
 
     foreman run web
 
-Run directly:
+Or:
 
-    python app/app.py 0.0.0.0:5000
+    foreman run debug
 
 Open a browser to http://localhost:5000/
 
@@ -25,6 +25,3 @@ Open a browser to http://localhost:5000/
 
     source bin/activate
     py.test --cov cihui -f test/
-
-
-
