@@ -4,10 +4,31 @@
 import os
 import support
 import unittest
+import urllib.parse
 
 from cihui import handler
 
 from tornado.testing import AsyncHTTPTestCase
+
+
+class LoginTest(support.HandlerTestCase):
+    def setUp(self):
+        class AccountData:
+            pass
+        self.account_db = AccountData()
+        super(LoginTest, self).setUp()
+
+    def get_handlers(self):
+        return [(r'/login',
+                 handler.LoginHandler,
+                 dict(account_db=self.account_db))]
+
+    def test_login(self):
+        params = {'user': 'john', 'passwd': 'secret'}
+        body = urllib.parse.urlencode(params)
+        self.http_client.fetch(self.get_url('/login'), self.stop, method='POST', headers=None, body=body)
+        response = self.wait()
+        self.assertEqual(200, response.code)
 
 
 class AtomFeedTest(support.HandlerTestCase):
@@ -30,7 +51,6 @@ class AtomFeedTest(support.HandlerTestCase):
 
         self.assertEqual(200, response.code)
         self.assertIn(b'Test Item', response.body)
-
 
 
 class DisplayWordListTest(support.HandlerTestCase):

@@ -23,6 +23,20 @@ def make_stub(list_id, stub=''):
 
     return list_id
 
+
+class LoginHandler(tornado.web.RequestHandler):
+    def initialize(self, account_db):
+        self.account_db = account_db
+
+    def post(self):
+        # TODO(gmwils): authorize against the account_db
+        # TODO(gmwils): use sensible salted passwords
+        # TODO(gmwils): document API
+        # TODO(gmwils): test from the view layer using selenium
+        # TODO(gmwils): handle account creation
+        self.write('Not yet implemented')
+
+
 class MainHandler(BaseHandler):
     @tornado.web.asynchronous
     @gen.engine
