@@ -3,6 +3,7 @@
 
 import os
 import support
+import tornado
 import unittest
 import urllib.parse
 
@@ -20,14 +21,21 @@ class UITestCase(support.HandlerTestCase):
 class LoginTest(UITestCase):
     def setUp(self):
         class AccountData:
-            pass
+            def authenticate(self, user, passwd, next_url, cb):
+                cb(next_url)
+
         self.account_db = AccountData()
         super(LoginTest, self).setUp()
 
     def get_handlers(self):
+        class HomeHandler(tornado.web.RequestHandler):
+            def get(self):
+                self.write(self.request.uri)
+
         return [(r'/login',
                  handler.LoginHandler,
-                 dict(account_db=self.account_db))]
+                 dict(account_db=self.account_db)),
+                (r'/.*', HomeHandler)]
 
     def test_show_login(self):
         self.http_client.fetch(self.get_url('/login'), self.stop)
@@ -36,14 +44,21 @@ class LoginTest(UITestCase):
         # TODO(gmwils): Improve test of render of login form
         self.assertIn(b'login', response.body)
 
-    def test_login(self):
-        params = {'user': 'john', 'passwd': 'secret'}
+    def test_successful_login(self):
+        params = {'user': 'john', 'passwd': 'secret', 'next': '/example'}
         body = urllib.parse.urlencode(params)
-        self.http_client.fetch(self.get_url('/login'), self.stop, method='POST', headers=None, body=body)
+        self.http_client.fetch(self.get_url('/login'), self.stop,
+                               method='POST',
+                               headers=None,
+                               body=body)
         response = self.wait()
         self.assertEqual(200, response.code)
-        # TODO(gmwils): actually handle authentication
-        self.assertIn(b'john', response.body)
+        # TODO(gmwils): set something to indicated logged in / current user
+        self.assertEqual(b'/example', response.body)
+
+    def test_failed_login(self):
+        # TODO(gmwils): test handling for failed login (nothing set, redirect to /)
+        pass
 
 
 class AtomFeedTest(support.HandlerTestCase):
@@ -53,7 +68,6 @@ class AtomFeedTest(support.HandlerTestCase):
                 callback([{'title': 'Test Item'}])
         self.list_db = ListData()
         super(AtomFeedTest, self).setUp()
-
 
     def get_handlers(self):
         return [(r'/atom.xml',

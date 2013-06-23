@@ -31,6 +31,7 @@ class LoginHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('login.html')
 
+    @tornado.web.asynchronous
     def post(self):
         # TODO(gmwils): authorize against the account_db
         # TODO(gmwils): use sensible salted passwords
@@ -40,9 +41,12 @@ class LoginHandler(tornado.web.RequestHandler):
         # TODO(gmwils): require HTTPS for login/app
         username = self.get_argument('user')
         password = self.get_argument('passwd')
-        self.write('%s: %s' % (username, password))
-        # Redirect back to page, or to home
-        # self.redirect(self.get_argument('next', '/'))
+        next_url = self.get_argument('next', '/')
+        self.account_db.authenticate(username, password, next_url, self.authenticated)
+
+    @tornado.web.asynchronous
+    def authenticated(self, redirect_url):
+        self.redirect(redirect_url)
 
 
 class MainHandler(BaseHandler):
