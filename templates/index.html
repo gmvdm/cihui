@@ -14,4 +14,13 @@
 <p><a href='http://www.arizona-software.ch/provoc/'>ProVoc</a> can be used to
   import the .tsv files.</p>
 
+<hr/>
+
+<!-- TODO(gmwils): include in header -->
+<form method='POST' action='/login'>
+  {% module xsrf_form_html() %}
+  <input type='text' name='user'>
+  <input type='password' name='passwd'>
+  <input type='submit'>
+</form>
 {% end %}

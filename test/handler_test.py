@@ -29,6 +29,7 @@ class LoginTest(support.HandlerTestCase):
         self.http_client.fetch(self.get_url('/login'), self.stop, method='POST', headers=None, body=body)
         response = self.wait()
         self.assertEqual(200, response.code)
+        self.assertIn(b'john', response.body)
 
 
 class AtomFeedTest(support.HandlerTestCase):

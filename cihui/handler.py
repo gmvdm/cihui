@@ -34,7 +34,10 @@ class LoginHandler(tornado.web.RequestHandler):
         # TODO(gmwils): document API
         # TODO(gmwils): test from the view layer using selenium
         # TODO(gmwils): handle account creation
-        self.write('Not yet implemented')
+        # TODO(gmwils): require HTTPS for login/app
+        username = self.get_argument('user')
+        password = self.get_argument('passwd')
+        self.write('%s: %s' % (username, password))
 
 
 class MainHandler(BaseHandler):
