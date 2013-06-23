@@ -41,6 +41,8 @@ class LoginHandler(tornado.web.RequestHandler):
         username = self.get_argument('user')
         password = self.get_argument('passwd')
         self.write('%s: %s' % (username, password))
+        # Redirect back to page, or to home
+        # self.redirect(self.get_argument('next', '/'))
 
 
 class MainHandler(BaseHandler):

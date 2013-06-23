@@ -21,7 +21,8 @@ class CiHuiApplication(tornado.web.Application):
         settings = {'static_path': os.path.join(os.path.dirname(__file__), '../static'),
                     'template_path': os.path.join(os.path.dirname(__file__), '../templates'),
                     'xsrf_cookies': True,
-                    'debug': debug
+                    'debug': debug,
+                    'login_url': '/login'
                     }
 
         if cookie_secret is None:
