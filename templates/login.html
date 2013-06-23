@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block header %}
+  <h1>Login</h1>
+{% end %}
+
+{% block content %}
+<form method='POST' action='/login'>
+  {% module xsrf_form_html() %}
+  <input type='text' name='user'>
+  <input type='password' name='passwd'>
+  <input type='submit'>
+</form>
+{% end %}

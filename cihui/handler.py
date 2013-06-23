@@ -28,6 +28,9 @@ class LoginHandler(tornado.web.RequestHandler):
     def initialize(self, account_db):
         self.account_db = account_db
 
+    def get(self):
+        self.render('login.html')
+
     def post(self):
         # TODO(gmwils): authorize against the account_db
         # TODO(gmwils): use sensible salted passwords

@@ -11,7 +11,13 @@ from cihui import handler
 from tornado.testing import AsyncHTTPTestCase
 
 
-class LoginTest(support.HandlerTestCase):
+class UITestCase(support.HandlerTestCase):
+    def get_app_kwargs(self):
+        return {'static_path': os.path.join(os.path.dirname(__file__), '../static'),
+                'template_path': os.path.join(os.path.dirname(__file__), '../templates')}
+
+
+class LoginTest(UITestCase):
     def setUp(self):
         class AccountData:
             pass
@@ -23,12 +29,20 @@ class LoginTest(support.HandlerTestCase):
                  handler.LoginHandler,
                  dict(account_db=self.account_db))]
 
+    def test_show_login(self):
+        self.http_client.fetch(self.get_url('/login'), self.stop)
+        response = self.wait()
+        self.assertEqual(200, response.code)
+        # TODO(gmwils): Improve test of render of login form
+        self.assertIn(b'login', response.body)
+
     def test_login(self):
         params = {'user': 'john', 'passwd': 'secret'}
         body = urllib.parse.urlencode(params)
         self.http_client.fetch(self.get_url('/login'), self.stop, method='POST', headers=None, body=body)
         response = self.wait()
         self.assertEqual(200, response.code)
+        # TODO(gmwils): actually handle authentication
         self.assertIn(b'john', response.body)
 
 
@@ -54,7 +68,7 @@ class AtomFeedTest(support.HandlerTestCase):
         self.assertIn(b'Test Item', response.body)
 
 
-class DisplayWordListTest(support.HandlerTestCase):
+class DisplayWordListTest(UITestCase):
     def setUp(self):
         class ListData:
             def get_word_list(self, list_id, callback):
@@ -74,10 +88,6 @@ class DisplayWordListTest(support.HandlerTestCase):
         return [(r'/list/([0-9]+)[^\.]*(\.?\w*)',
                  handler.WordListHandler,
                  dict(list_db=self.list_db))]
-
-    def get_app_kwargs(self):
-        return {'static_path': os.path.join(os.path.dirname(__file__), '../static'),
-                'template_path': os.path.join(os.path.dirname(__file__), '../templates')}
 
     def test_show_word_list(self):
         self.http_client.fetch(self.get_url('/list/123'), self.stop)
