@@ -78,7 +78,12 @@ class APIAccountHandler(APIHandler):
 
 
 def normalize_word_array(word):
-    return [unicodedata.normalize('NFC', entry) for entry in word]
+    zi, pinyin, definitions = word
+    definitions = [unicodedata.normalize('NFC', definition) for definition in definitions]
+
+    return [unicodedata.normalize('NFC', zi),
+            unicodedata.normalize('NFC', pinyin),
+            definitions]
 
 
 class APIListHandler(APIHandler):

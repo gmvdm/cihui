@@ -74,7 +74,9 @@ class AccountTest(APITestBase):
                 return True
 
         self.account_data_layer = Data()
-        return [(r'/api/account', api_handler.APIAccountHandler, dict(account_db=self.account_data_layer))]
+        return [(r'/api/account',
+                 api_handler.APIAccountHandler,
+                 dict(account_db=self.account_data_layer))]
 
     def test_find_or_create_account(self):
         data = self.url_encode_data({'email': 'test@example.com'})
@@ -116,7 +118,7 @@ class ListTest(APITestBase):
 
     def test_create_list(self):
         data = self.json_encode_data({'title': 'Test List',
-                                      'words': [['很', 'he\u0301n', 'very'], ]
+                                      'words': [['很', 'he\u0301n', ['very']], ]
                                       })
 
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
