@@ -111,13 +111,16 @@ class APIListHandler(APIHandler):
         cb = functools.partial(self.on_list_exists, list_name, words)
         self.list_db.list_exists(list_name, cb)
 
-    def on_list_exists(self, list_name, words, exists):
-        self.list_db.create_list(list_name, words, self.created_list, exists)
+    def on_list_exists(self, list_name, words, list_id):
+        self.list_db.create_list(list_name, words, self.created_list, list_id)
 
-    def created_list(self, success, reason=None):
+    def created_list(self, success, reason=None, id=None):
         if success:
             self.set_status(201)
-            self.write('')
+            # TODO(gmwils): generate url and return as JSON
+            # TODO(gmwils): set headers properly
+            # self.write(self.reverse_url('list', id))
+            self.write(str(id))
         else:
             self.set_status(500)
             if reason is not None:

@@ -5,6 +5,7 @@ from cihui import database_url
 from cihui import uri
 
 import datetime
+import functools
 import json
 import logging
 import momoko
@@ -44,7 +45,20 @@ class AsyncDatabase(BaseDatabase):
             self.db = db
         else:
             settings = database_url.build_settings_from_dburl(db_url)
-            self.db = momoko.AsyncClient(settings)
+            if settings.get('user') is not None:
+                dsn = 'dbname=%s user=%s password=%s host=%s port=%s' % (
+                    settings.get('database'),
+                    settings.get('user', ''),
+                    settings.get('password', ''),
+                    settings.get('host', 'localhost'),
+                    settings.get('port', 5432))
+            else:
+                dsn = 'dbname=%s host=%s port=%s' % (
+                    settings.get('database'),
+                    settings.get('host', 'localhost'),
+                    settings.get('port', 5432))
+
+            self.db = momoko.Pool(dsn)
 
 
 class AccountData(AsyncDatabase):
@@ -59,19 +73,19 @@ class AccountData(AsyncDatabase):
 
     def get_account(self, email, callback):
         cb_id = self.add_callback(callback, email)
+        cb = functools.partial(self._on_get_account_response, cb_id)
 
-        self.db.batch({cb_id: ['SELECT * FROM account WHERE email = %s;', (email,)]},
-                      callback=self._on_get_account_response)
+        self.db.execute('SELECT * FROM account WHERE email = %s;', (email,),
+                        callback=cb)
 
-    def _on_get_account_response(self, cursors):
-        for key, cursor in list(cursors.items()):
-            callback, email = self.get_callback(key)
+    def _on_get_account_response(self, cb_id, cursor, error=None):
+        callback, email = self.get_callback(cb_id)
 
-            if len(cursor) == 0:
-                callback(None)
-            else:
-                # TODO(gmwils) build an account object
-                callback(cursor.fetchall())
+        if len(cursor) == 0:
+            callback(None)
+        else:
+            # TODO(gmwils) build an account object
+            callback(cursor.fetchall())
 
 
 class ListData(AsyncDatabase):
@@ -80,98 +94,101 @@ class ListData(AsyncDatabase):
 
     def get_lists(self, callback):
         cb_id = self.add_callback(callback)
+        cb = functools.partial(self._on_get_lists_response, cb_id)
 
-        self.db.batch({cb_id: ['SELECT id, title, stub FROM list ORDER BY modified_at DESC;', ()]},
-                      callback=self._on_get_lists_response)
+        self.db.execute('SELECT id, title, stub FROM list ORDER BY modified_at DESC;',
+                        callback=cb)
 
-    def _on_get_lists_response(self, cursors):
-        for key, cursor in list(cursors.items()):
-            callback, _ = self.get_callback(key)
+    def _on_get_lists_response(self, cb_id, cursor, error=None):
+        callback, _ = self.get_callback(cb_id)
 
-            if cursor is None or cursor.rowcount == 0:
-                logging.warning('No lists found in database')
-                callback(None)
-            else:
-                word_lists = []
-                for word_list in cursor:
-                    word_lists.append({'id': word_list[0], 'title': word_list[1],
-                                       'stub': word_list[2]})
+        if cursor is None or cursor.rowcount == 0:
+            logging.warning('No lists found in database')
+            callback(None)
+        else:
+            word_lists = []
+            for word_list in cursor:
+                word_lists.append({'id': word_list[0], 'title': word_list[1],
+                                   'stub': word_list[2]})
 
-                callback(word_lists)
+            callback(word_lists)
 
     def get_word_list(self, list_id, callback):
         cb_id = self.add_callback(callback, list_id)
+        cb = functools.partial(self._on_get_word_list_response, cb_id)
 
-        self.db.batch({cb_id: ['SELECT id, title, words FROM list WHERE id = %s;',
-                               (list_id,)]},
-                      callback=self._on_get_word_list_response)
+        self.db.execute('SELECT id, title, words FROM list WHERE id = %s;',
+                        (list_id,),
+                        callback=cb)
 
-    def _on_get_word_list_response(self, cursors):
-        for key, cursor in list(cursors.items()):
-            callback, list_id = self.get_callback(key)
+    def _on_get_word_list_response(self, cb_id, cursor, error=None):
+        callback, list_id = self.get_callback(cb_id)
 
-            if cursor.rowcount != 1:
-                logging.warning('Invalid response for get_word_list(%s)', key)
-                callback(None)
-                continue
+        if cursor.rowcount != 1:
+            logging.warning('Invalid response for get_word_list(%s)', list_id)
+            callback(None)
+            return
 
-            result = cursor.fetchone()
-            word_list = {}
-            if len(result) > 2:
-                word_list['id'] = result[0]
-                word_list['title'] = result[1]
-                words = result[2]
-                if words is not None:
-                    words = json.loads(words)
+        result = cursor.fetchone()
+        word_list = {}
+        if len(result) > 2:
+            word_list['id'] = result[0]
+            word_list['title'] = result[1]
+            words = result[2]
+            if words is not None:
+                words = json.loads(words)
 
-                word_list['words'] = words
+            word_list['words'] = words
 
-            callback(word_list)
+        callback(word_list)
 
     def list_exists(self, list_name, callback):
         cb_id = self.add_callback(callback, list_name)
-        self.db.batch({cb_id: ['SELECT count(*) FROM list WHERE title=%s', (list_name,)]},
-                      callback=self._on_list_exists)
+        cb = functools.partial(self._on_list_exists, cb_id)
+        self.db.execute('SELECT max(id) FROM list WHERE title=%s', (list_name,),
+                        callback=cb)
 
-    def _on_list_exists(self, cursors):
-        for key, cursor in list(cursors.items()):
-            exists = False
-            callback, list_name = self.get_callback(key)
+    def _on_list_exists(self, cb_id, cursor, error=None):
+        exists = False
+        callback, list_name = self.get_callback(cb_id)
 
-            count = cursor.fetchone()[0]
+        result = cursor.fetchone()
+        if result is not None:
+            list_id = result[0]
+            callback(list_id)
+        else:
+            callback(None)
 
-            if count > 0:
-                exists = True
+    def create_list(self, list_name, list_elements, callback, list_id=None):
+        cb_id = self.add_callback(callback, list_id)
+        cb = functools.partial(self._on_create_list_response, cb_id)
 
-            callback(exists)
-
-    def create_list(self, list_name, list_elements, callback, list_exists=False):
-        cb_id = self.add_callback(callback, list_name)
-
-        if list_exists:
-            self.db.batch(
-                {cb_id: ['UPDATE list SET words=%s, modified_at=%s, stub=%s WHERE title=%s',
-                         (json.dumps(list_elements),
-                          datetime.datetime.now(),
-                          uri.title_to_stub(list_name),
-                          list_name)]},
-                          callback=self._on_create_list_response)
+        if list_id is not None:
+            self.db.execute(
+                'UPDATE list SET words=%s, modified_at=%s, stub=%s WHERE id=%s',
+                (json.dumps(list_elements),
+                 datetime.datetime.now(),
+                 uri.title_to_stub(list_name),
+                 list_id),
+                 callback=cb)
 
         else:
-            self.db.batch(
-                {cb_id: ['INSERT INTO list (title, words, stub) VALUES (%s, %s, %s)',
-                         (list_name,
-                          json.dumps(list_elements),
-                          uri.title_to_stub(list_name))]},
-                          callback=self._on_create_list_response)
+            self.db.execute(
+                'INSERT INTO list (title, words, stub) VALUES (%s, %s, %s)',
+                (list_name,
+                 json.dumps(list_elements),
+                 uri.title_to_stub(list_name)),
+                 callback=cb)
 
-    def _on_create_list_response(self, cursors):
-        for key, cursor in list(cursors.items()):
-            callback, list_name = self.get_callback(key)
+    def _on_create_list_response(self, cb_id, cursor, error=None):
+        callback, list_id = self.get_callback(cb_id)
 
-            if callback is None:
-                # XXX(gmwils) should log an error here
-                continue
+        if callback is None:
+            # XXX(gmwils) should log an error here
+            return
 
-            # TODO(gmwils) determine success/fail of insert/update?
-            callback(True)
+        # TODO(gmwils) determine success/fail of insert/update?
+        # TODO(gmwils) figure out how to get ID key back to the caller for
+        # both UPDATE & INSERT cases.
+        # See: http://stackoverflow.com/questions/5247685/python-postgres-psycopg2-getting-id-of-row-just-inserted
+        callback(True, id=list_id)
