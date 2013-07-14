@@ -114,13 +114,16 @@ class APIListHandler(APIHandler):
     def on_list_exists(self, list_name, words, list_id):
         self.list_db.create_list(list_name, words, self.created_list, list_id)
 
-    def created_list(self, success, reason=None, id=None):
+    def created_list(self, success, reason=None, list_id=None):
         if success:
             self.set_status(201)
             # TODO(gmwils): generate url and return as JSON
             # TODO(gmwils): set headers properly
-            # self.write(self.reverse_url('list', id))
-            self.write(str(id))
+            if list_id is not None:
+                url_path = '/list/%d.html' % list_id
+                self.write(url_path)
+            else:
+                self.write('')
         else:
             self.set_status(500)
             if reason is not None:

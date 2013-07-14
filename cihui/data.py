@@ -201,4 +201,4 @@ class ListData(AsyncDatabase):
             result = cursor.fetchone()
             list_id = result[0]
 
-        callback(True, id=list_id)
+        callback(True, list_id=list_id)

@@ -132,7 +132,7 @@ class CreateListTest(ListDataTest):
         self.listdata.callbacks['0|42'] = self.callback
         self.listdata._on_create_list_response('0|42', cursor)
 
-        self.callback.assert_called_once_with(True, id=42)
+        self.callback.assert_called_once_with(True, list_id=42)
 
 
 class ListExistsTest(ListDataTest):
