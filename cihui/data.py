@@ -174,21 +174,31 @@ class ListData(AsyncDatabase):
 
         else:
             self.db.execute(
-                'INSERT INTO list (title, words, stub) VALUES (%s, %s, %s)',
+                'INSERT INTO list (title, words, stub) VALUES (%s, %s, %s) RETURNING id',
                 (list_name,
                  json.dumps(list_elements),
                  uri.title_to_stub(list_name)),
                  callback=cb)
 
     def _on_create_list_response(self, cb_id, cursor, error=None):
-        callback, list_id = self.get_callback(cb_id)
+        callback, list_id_str = self.get_callback(cb_id)
 
         if callback is None:
             # XXX(gmwils) should log an error here
             return
 
-        # TODO(gmwils) determine success/fail of insert/update?
-        # TODO(gmwils) figure out how to get ID key back to the caller for
-        # both UPDATE & INSERT cases.
-        # See: http://stackoverflow.com/questions/5247685/python-postgres-psycopg2-getting-id-of-row-just-inserted
+        if error is not None:
+            callback(False)
+            return
+
+        list_id = None
+        try:
+            list_id = int(list_id_str)
+        except ValueError:
+            pass
+
+        if list_id is None:
+            result = cursor.fetchone()
+            list_id = result[0]
+
         callback(True, id=list_id)
