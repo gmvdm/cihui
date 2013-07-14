@@ -115,20 +115,20 @@ class APIListHandler(APIHandler):
         self.list_db.create_list(list_name, words, self.created_list, list_id)
 
     def created_list(self, success, reason=None, list_id=None):
+        params = {}
         if success:
             self.set_status(201)
-            # TODO(gmwils): generate url and return as JSON
-            # TODO(gmwils): set headers properly
             if list_id is not None:
-                url_path = '/list/%d.html' % list_id
-                self.write(url_path)
-            else:
-                self.write('')
+                params['list_id'] = list_id
+                params['list_path'] = '/list/%d.html' % list_id
+
         else:
             self.set_status(500)
             if reason is not None:
-                self.write('Error: %s' % reason)
+                params['error'] = 'Error: %s' % reason
             else:
-                self.write('Failed to create list.')
+                params['error'] = 'Failed to create list.'
 
+        self.set_header('Content-Type', 'application/json; charset=UTF-8')
+        self.write(json.dumps(params))
         self.finish()
