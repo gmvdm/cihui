@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
+import mock
 import os
 import support
 import tornado
@@ -90,7 +91,8 @@ class DisplayWordListTest(UITestCase):
                     words = [['大', 'da', ['big']], ]
                     callback({'id': list_id,
                               'title': 'list_%d' % list_id,
-                              'words': words})
+                              'words': words,
+                              'modified_at': mock.Mock()})
                 else:
                     callback(None)
 

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
+import datetime
 import mock
 import unittest
 
@@ -81,28 +82,33 @@ class GetWordListTest(ListDataTest):
         self.callback.assert_called_once_with(None)
 
     def test_got_one_word_list_with_no_words(self):
+        sample_date = datetime.datetime(1997, 11, 21, 16, 30)
         cursor = mock.MagicMock(side_effect=[])
         cursor.rowcount = 1
-        cursor.fetchone.return_value = tuple([1, 'Test', None])
+        cursor.fetchone.return_value = tuple([1, 'Test', None, sample_date])
+
 
         self.listdata.callbacks['0|1'] = self.callback
         self.listdata._on_get_word_list_response('0|1', cursor)
 
         self.callback.assert_called_once_with({'id': 1,
                                                'title': 'Test',
-                                               'words': None})
+                                               'words': None,
+                                               'modified_at': sample_date})
 
     def test_got_one_word_list_with_words(self):
+        sample_date = datetime.datetime(1997, 11, 21, 16, 30)
         cursor = mock.MagicMock(side_effect=[])
         cursor.rowcount = 1
-        cursor.fetchone.return_value = tuple([1, 'Test', '{"key": "value"}'])
+        cursor.fetchone.return_value = tuple([1, 'Test', '{"key": "value"}', sample_date])
 
         self.listdata.callbacks['0|1'] = self.callback
         self.listdata._on_get_word_list_response('0|1', cursor)
 
         self.callback.assert_called_once_with({'id': 1,
                                                'title': 'Test',
-                                               'words': {'key': 'value'}})
+                                               'words': {'key': 'value'},
+                                               'modified_at': sample_date})
 
 
 class CreateListTest(ListDataTest):

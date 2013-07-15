@@ -8,8 +8,10 @@
 <input type='hidden' id='word_list_id' value='{{ word_list['id'] }}'/>
 
 <p>{{ word_count }} words.</p>
-<p>Download: <a href='{{ request.uri }}.csv'>csv</a>,
-<a href='{{ request.uri }}.tsv'>tsv</a>
+<p>Last updated: {{ word_list['modified_at'].strftime('%Y-%m-%d %H:%M:%S') }}</p>
+<p>
+ Download: <a href='{{ request.uri }}.csv'>csv</a>,
+ <a href='{{ request.uri }}.tsv'>tsv</a>
 </p>
 
 
