@@ -42,10 +42,13 @@ class LoginHandler(tornado.web.RequestHandler):
         username = self.get_argument('user')
         password = self.get_argument('passwd')
         next_url = self.get_argument('next', '/')
-        self.account_db.authenticate(username, password, next_url, self.authenticated)
+        self.account_db.authenticate_web_user(username, password, next_url, self.authenticated)
 
     @tornado.web.asynchronous
     def authenticated(self, redirect_url):
+        # TODO(gmwils): handle authentication failure
+        # TODO(gmwils): include a proper session id that can expire
+        self.set_secure_cookie('session_id', '1')
         self.redirect(redirect_url)
 
 

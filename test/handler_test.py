@@ -22,11 +22,17 @@ class UITestCase(support.HandlerTestCase):
 class LoginTest(UITestCase):
     def setUp(self):
         class AccountData:
-            def authenticate(self, user, passwd, next_url, cb):
+            def authenticate_web_user(self, user, passwd, next_url, cb):
                 cb(next_url)
 
         self.account_db = AccountData()
         super(LoginTest, self).setUp()
+
+
+    def get_app_kwargs(self):
+        args = super().get_app_kwargs()
+        args['cookie_secret'] = 'Just a test'
+        return args
 
     def get_handlers(self):
         class HomeHandler(tornado.web.RequestHandler):
@@ -51,11 +57,13 @@ class LoginTest(UITestCase):
         self.http_client.fetch(self.get_url('/login'), self.stop,
                                method='POST',
                                headers=None,
-                               body=body)
+                               body=body,
+                               follow_redirects=False)
         response = self.wait()
-        self.assertEqual(200, response.code)
-        # TODO(gmwils): set something to indicated logged in / current user
-        self.assertEqual(b'/example', response.body)
+
+        self.assertEqual(302, response.code)
+        self.assertIn('session_id=', response.headers['Set-Cookie'])
+        self.assertEqual('/example', response.headers['Location'])
 
     def test_failed_login(self):
         # TODO(gmwils): test handling for failed login (nothing set, redirect to /)
