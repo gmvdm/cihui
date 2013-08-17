@@ -19,4 +19,4 @@ class HandlerTestCase(AsyncHTTPTestCase):
         raise NotImplementedError()
 
     def get_app_kwargs(self):
-        return {}
+        return {'cookie_secret': 'Testing all the things'}

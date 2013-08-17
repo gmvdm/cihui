@@ -73,7 +73,9 @@ class AccountData(AsyncDatabase):
 
     def authenticate_web_user(self, user, passwd, next_url, callback):
         # TODO(gmwils): authenticate user against database
-        callback(next_url)
+        # TODO(gmwils): check username against DB, and don't pass through
+        session_id = 1
+        callback(session_id, next_url, user)
 
     def get_account(self, email, callback):
         cb_id = self.add_callback(callback, email)

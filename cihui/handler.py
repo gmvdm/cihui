@@ -16,6 +16,14 @@ class BaseHandler(tornado.web.RequestHandler):
     def initialize(self, list_db):
         self.list_db = list_db
 
+    def get_current_user(self):
+        # TODO(gmwils): refactor & test
+        session_key = self.get_secure_cookie('session_id')
+        if session_key:
+            return str(session_key, encoding='ascii').split('|')[1]
+
+        return None
+
 
 def make_stub(list_id, stub=''):
     if stub:
@@ -24,6 +32,7 @@ def make_stub(list_id, stub=''):
     return list_id
 
 
+# TODO(gmwils): LogoutHandler
 class LoginHandler(tornado.web.RequestHandler):
     def initialize(self, account_db):
         self.account_db = account_db
@@ -33,11 +42,11 @@ class LoginHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     def post(self):
-        # TODO(gmwils): authorize against the account_db
-        # TODO(gmwils): use sensible salted passwords
         # TODO(gmwils): document API
         # TODO(gmwils): test from the view layer using selenium
         # TODO(gmwils): handle account creation
+        # TODO(gmwils): use sensible salted passwords
+        # TODO(gmwils): authorize against the account_db
         # TODO(gmwils): require HTTPS for login/app
         username = self.get_argument('user')
         password = self.get_argument('passwd')
@@ -45,11 +54,14 @@ class LoginHandler(tornado.web.RequestHandler):
         self.account_db.authenticate_web_user(username, password, next_url, self.authenticated)
 
     @tornado.web.asynchronous
-    def authenticated(self, redirect_url):
-        # TODO(gmwils): handle authentication failure
+    def authenticated(self, session_id=None, redirect_url=None, username=None):
         # TODO(gmwils): include a proper session id that can expire
-        self.set_secure_cookie('session_id', '1')
-        self.redirect(redirect_url)
+        if session_id is not None:
+            self.set_secure_cookie('session_id', '%s|%s' % (session_id, username))
+            self.redirect(redirect_url)
+        else:
+            # TODO(gmwils): show a login failure message
+            self.redirect('/')
 
 
 class MainHandler(BaseHandler):

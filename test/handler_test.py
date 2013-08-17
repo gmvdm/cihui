@@ -15,24 +15,23 @@ from tornado.testing import AsyncHTTPTestCase
 
 class UITestCase(support.HandlerTestCase):
     def get_app_kwargs(self):
-        return {'static_path': os.path.join(os.path.dirname(__file__), '../static'),
-                'template_path': os.path.join(os.path.dirname(__file__), '../templates')}
+        args = super().get_app_kwargs()
+        args['static_path'] = os.path.join(os.path.dirname(__file__), '../static')
+        args['template_path'] = os.path.join(os.path.dirname(__file__), '../templates')
+        return args
 
 
 class LoginTest(UITestCase):
     def setUp(self):
         class AccountData:
             def authenticate_web_user(self, user, passwd, next_url, cb):
-                cb(next_url)
+                session_id = 123
+                if passwd == 'bad':
+                    session_id = None
+                cb(session_id, next_url, username=user)
 
         self.account_db = AccountData()
         super(LoginTest, self).setUp()
-
-
-    def get_app_kwargs(self):
-        args = super().get_app_kwargs()
-        args['cookie_secret'] = 'Just a test'
-        return args
 
     def get_handlers(self):
         class HomeHandler(tornado.web.RequestHandler):
@@ -66,8 +65,18 @@ class LoginTest(UITestCase):
         self.assertEqual('/example', response.headers['Location'])
 
     def test_failed_login(self):
-        # TODO(gmwils): test handling for failed login (nothing set, redirect to /)
-        pass
+        params = {'user': 'john', 'passwd': 'bad', 'next': '/example'}
+        body = urllib.parse.urlencode(params)
+        self.http_client.fetch(self.get_url('/login'), self.stop,
+                               method='POST',
+                               headers=None,
+                               body=body,
+                               follow_redirects=False)
+        response = self.wait()
+
+        self.assertEqual(302, response.code)
+        self.assertEqual(None, response.headers.get('Set-Cookie', None))
+        self.assertEqual('/', response.headers['Location'])
 
 
 class AtomFeedTest(support.HandlerTestCase):
