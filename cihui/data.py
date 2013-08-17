@@ -96,7 +96,11 @@ class ListData(AsyncDatabase):
         cb_id = self.add_callback(callback)
         cb = functools.partial(self._on_get_lists_response, cb_id)
 
-        self.db.execute('SELECT id, title, stub FROM list ORDER BY modified_at DESC;',
+        self.db.execute('''SELECT id, title, stub
+                           FROM list
+                           WHERE public = %s
+                           ORDER BY modified_at DESC;''',
+                        ('true',),
                         callback=cb)
 
     def _on_get_lists_response(self, cb_id, cursor, error=None):
@@ -171,7 +175,7 @@ class ListData(AsyncDatabase):
                  datetime.datetime.now(),
                  uri.title_to_stub(list_name),
                  list_id),
-                 callback=cb)
+                callback=cb)
 
         else:
             self.db.execute(
@@ -179,7 +183,7 @@ class ListData(AsyncDatabase):
                 (list_name,
                  json.dumps(list_elements),
                  uri.title_to_stub(list_name)),
-                 callback=cb)
+                callback=cb)
 
     def _on_create_list_response(self, cb_id, cursor, error=None):
         callback, list_id_str = self.get_callback(cb_id)
