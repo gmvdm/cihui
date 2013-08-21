@@ -1,0 +1,32 @@
+{% extends "../layout.html" %}
+
+{% block header %}
+  <h1>Create a new account</h1>
+{% end %}
+
+{% block content %}
+<form method='POST' action='/user'>
+  <fieldset>
+    <ul>
+      <li>
+        <label for='email'>Email:</label>
+        <div class='fieldgroup'>
+          <input type='text' name='email' maxlength='128'>
+        </div>
+      </li>
+      <li>
+        <label for='password'>Password:</label>
+        <div class='fieldgroup'>
+          <input type='password' name='password' maxlength='128'>
+        </div>
+      </li>
+    </ul>
+    <p class='action'>
+      <input type='submit' value='Create'>
+    </p>
+  </fieldset>
+  {% module xsrf_form_html() %}
+</form>
+
+
+{% end %}

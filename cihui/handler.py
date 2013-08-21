@@ -32,6 +32,18 @@ def make_stub(list_id, stub=''):
     return list_id
 
 
+class UserHandler(BaseHandler):
+    def initialize(self, account_db):
+        self.account_db = account_db
+
+    def get(self, username):
+        if username == 'new':
+            self.render('user/new.html')
+        else:
+            # TODO(gmwils): get user info from the database
+            self.render('user/show.html', username=username)
+
+
 # TODO(gmwils): LogoutHandler
 class LoginHandler(tornado.web.RequestHandler):
     def initialize(self, account_db):
@@ -144,3 +156,5 @@ class WordListHandler(BaseHandler):
             self.render('word_list.html', word_list=word_list, word_count=word_count)
         else:
             self.send_error(404)
+
+
