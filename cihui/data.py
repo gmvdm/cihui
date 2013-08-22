@@ -4,8 +4,10 @@
 from cihui import database_url
 from cihui import uri
 
+import base64
 import datetime
 import functools
+import hashlib
 import json
 import logging
 import momoko
@@ -87,11 +89,33 @@ class AccountData(AsyncDatabase):
     def _on_get_account_response(self, cb_id, cursor, error=None):
         callback, email = self.get_callback(cb_id)
 
-        if len(cursor) == 0:
+        if cursor is None or cursor.rowcount == 0:
             callback(None)
         else:
             # TODO(gmwils) build an account object
             callback(cursor.fetchall())
+
+    def create_account(self, email, passwd, callback):
+        cb_id = self.add_callback(callback, email)
+        cb = functools.partial(self._on_create_account_response, cb_id)
+
+        # See: https://crackstation.net/hashing-security.htm
+        passwd_salt = base64.b64encode(os.urandom(64))
+        passwd_hash = hashlib.sha256(passwd_salt + passwd.encode())
+        passwd_digest = base64.b64encode(passwd_hash.digest())
+
+        self.db.execute('INSERT INTO account (email, password_hash, password_salt) VALUES (%s, %s, %s) RETURNING id',
+                        (email, passwd_digest.decode(), passwd_salt),
+                        callback=cb)
+
+    def _on_create_account_response(self, cb_id, cursor, error=None):
+        callback, email = self.get_callback(cb_id)
+
+        if cursor is None or cursor.rowcount == 0:
+            callback(None)
+        else:
+            user_id = cursor.fetchone()[0]
+            callback(user_id)
 
 
 class ListData(AsyncDatabase):

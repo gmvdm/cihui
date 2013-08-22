@@ -32,6 +32,7 @@ def make_stub(list_id, stub=''):
     return list_id
 
 
+# TODO(gmwils): test user handler
 class UserHandler(BaseHandler):
     def initialize(self, account_db):
         self.account_db = account_db
@@ -42,6 +43,21 @@ class UserHandler(BaseHandler):
         else:
             # TODO(gmwils): get user info from the database
             self.render('user/show.html', username=username)
+
+    @tornado.web.asynchronous
+    @gen.engine
+    def post(self):
+        email = self.get_argument('email')
+        passwd = self.get_argument('password')
+
+        # TODO(gmwils): validate the fields
+
+        user_id = yield gen.Task(self.account_db.create_account, email, passwd)
+
+        if user_id is not None:
+            self.redirect('/user/%s' % user_id)
+        else:
+            self.redirect('/')
 
 
 # TODO(gmwils): LogoutHandler
