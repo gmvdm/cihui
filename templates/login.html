@@ -6,9 +6,25 @@
 
 {% block content %}
 <form method='POST' action='/login'>
+  <fieldset>
+    <ul>
+      <li>
+        <label for='user'>User:</label>
+        <div class='fieldgroup'>
+          <input type='text' name='user' maxlength='128'>
+        </div>
+      </li>
+      <li>
+        <label for='password'>Password:</label>
+        <div class='fieldgroup'>
+          <input type='password' name='password' maxlength='128'>
+        </div>
+      </li>
+    </ul>
+    <p class='action'>
+      <input type='submit' value='Login'>
+    </p>
+  </fieldset>
   {% module xsrf_form_html() %}
-  <input type='text' name='user'>
-  <input type='password' name='passwd'>
-  <input type='submit'>
 </form>
 {% end %}

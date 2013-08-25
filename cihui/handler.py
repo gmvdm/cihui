@@ -72,22 +72,21 @@ class LoginHandler(tornado.web.RequestHandler):
     def post(self):
         # TODO(gmwils): document API
         # TODO(gmwils): test from the view layer using selenium
-        # TODO(gmwils): handle account creation
-        # TODO(gmwils): use sensible salted passwords
-        # TODO(gmwils): authorize against the account_db
         # TODO(gmwils): require HTTPS for login/app
         username = self.get_argument('user')
-        password = self.get_argument('passwd')
-        next_url = self.get_argument('next', '/')
+        password = self.get_argument('password')
+        next_url = self.get_argument('next', '/list/1')
         self.account_db.authenticate_web_user(username, password, next_url, self.authenticated)
 
     @tornado.web.asynchronous
-    def authenticated(self, session_id=None, redirect_url=None, username=None):
-        # TODO(gmwils): include a proper session id that can expire
-        if session_id is not None:
-            self.set_secure_cookie('session_id', '%s|%s' % (session_id, username))
+    def authenticated(self, user_id=None, redirect_url=None, username=None):
+        # TODO(gmwils): include a cookie that can expire
+        if user_id is not None:
+            self.set_secure_cookie('session_id', '%s|%s' % (user_id, username))
             self.redirect(redirect_url)
         else:
+            # TODO(gmwils): figure out why there is an error on redirect
+            self.set_secure_cookie('session_id', '')
             # TODO(gmwils): show a login failure message
             self.redirect('/')
 
