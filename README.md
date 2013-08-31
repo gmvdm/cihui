@@ -23,8 +23,11 @@ Open a browser to http://localhost:5000/
 
 ## Run tests
 
-    source bin/activate
-    py.test --cov cihui -f test/
+    py.test --cov cihui --cov-report term-missing -f test/
+
+or
+
+    foreman run cov
 
 ## Add a database migration
 
