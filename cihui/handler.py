@@ -80,8 +80,9 @@ class LoginHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     def authenticated(self, user_id=None, redirect_url=None, username=None):
-        # TODO(gmwils): include a cookie that can expire
+
         if user_id is not None:
+            # TODO(gmwils): include explict expiration for the cookie
             self.set_secure_cookie('session_id', '%s|%s' % (user_id, username))
             self.redirect(redirect_url)
         else:

@@ -24,11 +24,13 @@ class UITestCase(support.HandlerTestCase):
 class LoginTest(UITestCase):
     def setUp(self):
         class AccountData:
-            def authenticate_web_user(self, user, passwd, next_url, cb):
-                session_id = 123
-                if passwd == 'bad':
-                    session_id = None
-                cb(session_id, next_url, username=user)
+            def authenticate_web_user(self, user, password, next_url, cb):
+                account_id = 123
+
+                if password == 'bad':
+                    cb()
+                else:
+                    cb(account_id, next_url, 'test_username')
 
         self.account_db = AccountData()
         super(LoginTest, self).setUp()
@@ -51,7 +53,7 @@ class LoginTest(UITestCase):
         self.assertIn(b'login', response.body)
 
     def test_successful_login(self):
-        params = {'user': 'john', 'passwd': 'secret', 'next': '/example'}
+        params = {'user': 'john', 'password': 'secret', 'next': '/example'}
         body = urllib.parse.urlencode(params)
         self.http_client.fetch(self.get_url('/login'), self.stop,
                                method='POST',
@@ -65,7 +67,7 @@ class LoginTest(UITestCase):
         self.assertEqual('/example', response.headers['Location'])
 
     def test_failed_login(self):
-        params = {'user': 'john', 'passwd': 'bad', 'next': '/example'}
+        params = {'user': 'john', 'password': 'bad', 'next': '/example'}
         body = urllib.parse.urlencode(params)
         self.http_client.fetch(self.get_url('/login'), self.stop,
                                method='POST',
@@ -75,7 +77,6 @@ class LoginTest(UITestCase):
         response = self.wait()
 
         self.assertEqual(302, response.code)
-        self.assertEqual(None, response.headers.get('Set-Cookie', None))
         self.assertEqual('/', response.headers['Location'])
 
 
