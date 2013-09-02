@@ -1,9 +1,13 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<!DOCTYPE html>
 <html>
 <head>
   <title>CiHui</title>
+
   <meta charset="utf-8" />
-  <link rel="stylesheet" href="{{ static_url("css/main.css") }}" type="text/css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="{{ static_url('css/bootstrap.min.css') }}" rel="stylesheet" media="screen">
+  <link href="{{ static_url('css/main.css') }}" rel="stylesheet" media="screen" type="text/css" />
   <link href="/atom.xml" type="application/atom+xml" rel="alternate" title="CiHui" />
   <script type="text/javascript">
 
@@ -21,25 +25,25 @@
 </head>
 
 <body>
-  <div class='nav'>
-    <h3><a href='/'>CiHui</a></h3>
-  </div>
-  <div class="main">
-    <div class="header">
-      {% block header %}{% end %}
+  <div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">CiHui</a>
+      </div>
     </div>
+  </div>
 
-    <div class="content">
+  <div class="jumbotron">
+    <div class="container">
+      {% block header %}{% end %}
+
       {% block content %}{% end %}
     </div>
-
-    <div class="footer">
-      {% block footer %}{% end %}
-    </div>
-
-    <div class="copy">
-      <hr/>
-      <p>&copy; 2012&ndash;2013 CiHui</p>
-    </div>
   </div>
+
+  <footer>
+    {% block footer %}{% end %}
+    <p>&copy; 2012&ndash;2013 CiHui</p>
+  </footer>
+
 </body> </html>
