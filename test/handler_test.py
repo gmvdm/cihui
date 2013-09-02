@@ -43,6 +43,7 @@ class LoginTest(UITestCase):
         return [(r'/login',
                  handler.LoginHandler,
                  dict(account_db=self.account_db)),
+                (r'/logout', handler.LogoutHandler),
                 (r'/.*', HomeHandler)]
 
     def test_show_login(self):
@@ -78,6 +79,13 @@ class LoginTest(UITestCase):
 
         self.assertEqual(302, response.code)
         self.assertEqual('/', response.headers['Location'])
+
+    def test_logout(self):
+        self.http_client.fetch(self.get_url('/logout'), self.stop, follow_redirects=False)
+        response = self.wait()
+
+        self.assertIn('session_id=', response.headers['Set-Cookie'])
+
 
 
 class UserTest(UITestCase):

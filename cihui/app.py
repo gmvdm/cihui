@@ -36,6 +36,7 @@ class CiHuiApplication(tornado.web.Application):
 
                     (r'/atom.xml', handler.AtomHandler, dict(list_db=self.list_db)),
                     (r'/login', handler.LoginHandler, dict(account_db=self.account_db)),
+                    (r'/logout', handler.LogoutHandler),
                     tornado.web.url(r'/list/([0-9]+)[^\.]*(\.?\w*)', handler.WordListHandler, dict(list_db=self.list_db), name='list'),
                     (r'/user/(\w+)$', handler.UserHandler, dict(account_db=self.account_db)),
                     (r'/user', handler.UserHandler, dict(account_db=self.account_db)),

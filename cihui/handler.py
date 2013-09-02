@@ -60,7 +60,6 @@ class UserHandler(BaseHandler):
             self.redirect('/')
 
 
-# TODO(gmwils): LogoutHandler
 class LoginHandler(BaseHandler):
     def initialize(self, account_db):
         self.account_db = account_db
@@ -89,6 +88,12 @@ class LoginHandler(BaseHandler):
             self.set_secure_cookie('session_id', '')
             # TODO(gmwils): show a login failure message
             self.redirect('/')
+
+
+class LogoutHandler(BaseHandler):
+    def get(self):
+        self.set_secure_cookie('session_id', '')
+        self.redirect('/')
 
 
 class MainHandler(BaseListHandler):
