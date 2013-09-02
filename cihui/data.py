@@ -93,6 +93,7 @@ class AccountData(AsyncDatabase):
 
         if error is not None or cursor is None or cursor.rowcount == 0:
             callback()
+            return
 
         result = cursor.fetchone()
         if result is not None and len(result) > 3:
@@ -106,6 +107,7 @@ class AccountData(AsyncDatabase):
             if hmac.compare_digest(password_hash.encode(), current_digest):
                 # TODO(gmwils): return user id instead of email
                 callback(account_id, next_url, account_email)
+                return
 
         callback()
 

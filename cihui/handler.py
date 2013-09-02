@@ -65,7 +65,8 @@ class LoginHandler(BaseHandler):
         self.account_db = account_db
 
     def get(self):
-        self.render('login.html')
+        error_msg = self.get_argument('error', default='')
+        self.render('login.html', error_msg=error_msg)
 
     @tornado.web.asynchronous
     def post(self):
@@ -80,14 +81,12 @@ class LoginHandler(BaseHandler):
     @tornado.web.asynchronous
     def authenticated(self, user_id=None, redirect_url=None, username=None):
         if user_id is not None:
-            # TODO(gmwils): include explict expiration for the cookie
-            self.set_secure_cookie('session_id', '%s|%s' % (user_id, username))
-            self.redirect(redirect_url)
+            self.set_secure_cookie('session_id', '%s|%s' % (user_id, username), expires_days=30)
+            self.redirect(redirect_url or '/')
         else:
-            # TODO(gmwils): figure out why there is an error on redirect
             self.set_secure_cookie('session_id', '')
-            # TODO(gmwils): show a login failure message
-            self.redirect('/')
+            error_msg = tornado.escape.url_escape('Error: Incorrect login')
+            self.redirect('/login?error=%s' % error_msg)
 
 
 class LogoutHandler(BaseHandler):

@@ -7,6 +7,9 @@
 {% block content %}
 <form method='POST' action='/login'>
   <fieldset>
+    <span class='error'>{{ error_msg }}</span>
+  </fieldset>
+  <fieldset>
     <ul>
       <li>
         <label for='user'>User:</label>
