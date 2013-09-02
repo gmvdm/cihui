@@ -13,9 +13,6 @@ from tornado import gen
 
 
 class BaseHandler(tornado.web.RequestHandler):
-    def initialize(self, list_db):
-        self.list_db = list_db
-
     def get_current_user(self):
         # TODO(gmwils): refactor & test
         session_key = self.get_secure_cookie('session_id')
@@ -23,6 +20,11 @@ class BaseHandler(tornado.web.RequestHandler):
             return str(session_key, encoding='ascii').split('|')[1]
 
         return None
+
+
+class BaseListHandler(BaseHandler):
+    def initialize(self, list_db):
+        self.list_db = list_db
 
 
 def make_stub(list_id, stub=''):
@@ -59,7 +61,7 @@ class UserHandler(BaseHandler):
 
 
 # TODO(gmwils): LogoutHandler
-class LoginHandler(tornado.web.RequestHandler):
+class LoginHandler(BaseHandler):
     def initialize(self, account_db):
         self.account_db = account_db
 
@@ -78,7 +80,6 @@ class LoginHandler(tornado.web.RequestHandler):
 
     @tornado.web.asynchronous
     def authenticated(self, user_id=None, redirect_url=None, username=None):
-
         if user_id is not None:
             # TODO(gmwils): include explict expiration for the cookie
             self.set_secure_cookie('session_id', '%s|%s' % (user_id, username))
@@ -90,7 +91,7 @@ class LoginHandler(tornado.web.RequestHandler):
             self.redirect('/')
 
 
-class MainHandler(BaseHandler):
+class MainHandler(BaseListHandler):
     @tornado.web.asynchronous
     @gen.engine
     def get(self):
@@ -107,7 +108,7 @@ class MainHandler(BaseHandler):
         self.render('index.html', word_lists=word_lists)
 
 
-class AtomHandler(BaseHandler):
+class AtomHandler(BaseListHandler):
     @tornado.web.asynchronous
     @gen.engine
     def get(self):
@@ -122,7 +123,7 @@ class AtomHandler(BaseHandler):
         self.finish()
 
 
-class WordListHandler(BaseHandler):
+class WordListHandler(BaseListHandler):
     @tornado.web.asynchronous
     def get(self, list_id, list_format):
         callback = self.render_html_list
