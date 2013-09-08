@@ -225,7 +225,7 @@ class ListData(AsyncDatabase):
         else:
             callback(None)
 
-    def create_list(self, list_name, list_elements, callback, list_id=None):
+    def create_list(self, list_name, list_elements, callback, list_id=None, account_id=None, email_address=None):
         cb_id = self.add_callback(callback, list_id)
         cb = functools.partial(self._on_create_list_response, cb_id)
 
@@ -240,10 +240,12 @@ class ListData(AsyncDatabase):
 
         else:
             self.db.execute(
-                'INSERT INTO list (title, words, stub) VALUES (%s, %s, %s) RETURNING id',
+                'INSERT INTO list (title, words, stub, account_id) VALUES (%s, %s, %s, (SELECT id FROM account WHERE id = %s OR email = %s)) RETURNING id',
                 (list_name,
                  json.dumps(list_elements),
-                 uri.title_to_stub(list_name)),
+                 uri.title_to_stub(list_name),
+                 account_id,
+                 email_address),
                 callback=cb)
 
     def _on_create_list_response(self, cb_id, cursor, error=None):

@@ -101,8 +101,10 @@ class ListTest(APITestBase):
                 return True
 
         class ListData:
-            def create_list(self, list_name, words, callback, exists=False):
+            def create_list(self, list_name, words, callback, exists=False, account_id=None, email_address=None):
                 self.words = words
+                self.account_id = account_id
+                self.email_address = email_address
                 callback(True)
 
             def list_exists(self, list_name, callback):
@@ -118,7 +120,8 @@ class ListTest(APITestBase):
 
     def test_create_list(self):
         data = self.json_encode_data({'title': 'Test List',
-                                      'words': [['很', 'he\u0301n', ['very']], ]
+                                      'words': [['很', 'he\u0301n', ['very']], ],
+                                      'account_id': 1,
                                       })
 
         self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
@@ -129,6 +132,19 @@ class ListTest(APITestBase):
         self.assertEqual(201, response.code)
         self.assertIn('很', self.list_data_layer.words[0])
         self.assertEqual('hén', self.list_data_layer.words[0][1])
+        self.assertEqual(self.list_data_layer.account_id, 1)
+
+    def test_create_list_requires_user(self):
+        data = self.json_encode_data({'title': 'Test List',
+                                      'words': [['很', 'he\u0301n', ['very']], ],
+                                      })
+
+        self.http_client.fetch(self.get_url('/api/list'), self.stop, method='POST',
+                               headers=None, body=data,
+                               auth_username='user', auth_password='secret')
+        response = self.wait()
+
+        self.assertEqual(500, response.code)
 
     def test_update_existing_list(self):
         # TODO(gmwils): fill in the test
