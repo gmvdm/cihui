@@ -78,7 +78,7 @@ class LoginTest(UITestCase):
         response = self.wait()
 
         self.assertEqual(302, response.code)
-        self.assertEqual('/', response.headers['Location'])
+        self.assertEqual('/login?error=Error%3A+Incorrect+login', response.headers['Location'])
 
     def test_logout(self):
         self.http_client.fetch(self.get_url('/logout'), self.stop, follow_redirects=False)
