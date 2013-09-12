@@ -215,7 +215,6 @@ class ListData(AsyncDatabase):
                         callback=cb)
 
     def _on_list_exists(self, cb_id, cursor, error=None):
-        exists = False
         callback, list_name = self.get_callback(cb_id)
 
         result = cursor.fetchone()
@@ -231,11 +230,13 @@ class ListData(AsyncDatabase):
 
         if list_id is not None:
             self.db.execute(
-                'UPDATE list SET words=%s, modified_at=%s, stub=%s WHERE id=%s',
+                'UPDATE list SET words=%s, modified_at=%s, stub=%s WHERE id=%s AND account_id in (SELECT id FROM account WHERE id = %s or email = %s)',
                 (json.dumps(list_elements),
                  datetime.datetime.now(),
                  uri.title_to_stub(list_name),
-                 list_id),
+                 list_id,
+                 account_id,
+                 email_address),
                 callback=cb)
 
         else:
