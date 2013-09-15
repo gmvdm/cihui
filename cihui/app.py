@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
-from cihui import api_handler
-from cihui import handler
+from cihui.handler import api
+from cihui.handler import auth
+from cihui.handler import wordlist
+from cihui.handler import user
 
 import os
 import tornado.web
@@ -30,16 +32,16 @@ class CiHuiApplication(tornado.web.Application):
         else:
             settings['cookie_secret'] = cookie_secret
 
-        handlers = [(r'/', handler.MainHandler, dict(list_db=self.list_db)),
-                    (r'/api/account', api_handler.APIAccountHandler, dict(account_db=self.account_db)),
-                    (r'/api/list', api_handler.APIListHandler, dict(account_db=self.account_db, list_db=self.list_db)),
+        handlers = [(r'/', wordlist.MainHandler, dict(list_db=self.list_db)),
+                    (r'/api/account', api.APIAccountHandler, dict(account_db=self.account_db)),
+                    (r'/api/list', api.APIListHandler, dict(account_db=self.account_db, list_db=self.list_db)),
 
-                    (r'/atom.xml', handler.AtomHandler, dict(list_db=self.list_db)),
-                    (r'/login', handler.LoginHandler, dict(account_db=self.account_db)),
-                    (r'/logout', handler.LogoutHandler),
-                    tornado.web.url(r'/list/([0-9]+)[^\.]*(\.?\w*)', handler.WordListHandler, dict(list_db=self.list_db), name='list'),
-                    (r'/user/(\w+)$', handler.UserHandler, dict(account_db=self.account_db)),
-                    (r'/user', handler.UserHandler, dict(account_db=self.account_db)),
+                    (r'/atom.xml', wordlist.AtomHandler, dict(list_db=self.list_db)),
+                    (r'/login', auth.LoginHandler, dict(account_db=self.account_db)),
+                    (r'/logout', auth.LogoutHandler),
+                    tornado.web.url(r'/list/([0-9]+)[^\.]*(\.?\w*)', wordlist.WordListHandler, dict(list_db=self.list_db), name='list'),
+                    (r'/user/(\w+)$', user.UserHandler, dict(account_db=self.account_db)),
+                    (r'/user', user.UserHandler, dict(account_db=self.account_db)),
                     ]
 
         tornado.web.Application.__init__(self, handlers, **settings)

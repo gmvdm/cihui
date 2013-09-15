@@ -4,6 +4,8 @@
 from tornado.testing import AsyncHTTPTestCase
 from tornado.web import Application
 
+import os
+
 
 class HandlerTestCase(AsyncHTTPTestCase):
     """Base class for web tests that also supports WSGI mode.
@@ -20,3 +22,11 @@ class HandlerTestCase(AsyncHTTPTestCase):
 
     def get_app_kwargs(self):
         return {'cookie_secret': 'Testing all the things'}
+
+
+class UITestCase(HandlerTestCase):
+    def get_app_kwargs(self):
+        args = super().get_app_kwargs()
+        args['static_path'] = os.path.join(os.path.dirname(__file__), '../static')
+        args['template_path'] = os.path.join(os.path.dirname(__file__), '../templates')
+        return args

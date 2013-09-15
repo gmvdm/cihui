@@ -5,22 +5,12 @@ import tornado.web
 
 from cihui import atom_formatter
 from cihui import formatter
+from cihui.handler import common
 
 from tornado import gen
 
 
-class BaseHandler(tornado.web.RequestHandler):
-    def get_current_user(self):
-        # TODO(gmwils): refactor & test
-        session_key = self.get_secure_cookie('session_id')
-        if session_key:
-            user_id, username = str(session_key, encoding='ascii').split('|')
-            return user_id
-
-        return None
-
-
-class BaseListHandler(BaseHandler):
+class BaseListHandler(common.BaseHandler):
     def initialize(self, list_db):
         self.list_db = list_db
 
@@ -30,69 +20,6 @@ def make_stub(list_id, stub=''):
         return '%s-%s' % (list_id, stub)
 
     return list_id
-
-
-class UserHandler(BaseHandler):
-    def initialize(self, account_db):
-        self.account_db = account_db
-
-    def get(self, username):
-        if username == 'new':
-            self.render('user/new.html')
-        else:
-            # TODO(gmwils): get user info from the database
-            self.render('user/show.html', username=username)
-
-    @tornado.web.asynchronous
-    @gen.engine
-    def post(self):
-        email = self.get_argument('email')
-        passwd = self.get_argument('password')
-
-        # TODO(gmwils): validate the fields
-        user_id = yield gen.Task(self.account_db.create_account, email, passwd)
-
-        if user_id is not None:
-            self.redirect('/user/%s' % user_id)
-        else:
-            self.redirect('/')
-
-
-class LoginHandler(BaseHandler):
-    def initialize(self, account_db):
-        self.account_db = account_db
-
-    def get(self):
-        error_msg = self.get_argument('error', default='')
-        self.render('login.html', error_msg=error_msg)
-
-    @tornado.web.asynchronous
-    def post(self):
-        # TODO(gmwils): document API
-        # TODO(gmwils): test from the view layer using selenium
-        # TODO(gmwils): require HTTPS for login/app
-        username = self.get_argument('user')
-        password = self.get_argument('password')
-        next_url = self.get_argument('next', '/list/1')
-        self.account_db.authenticate_web_user(username, password, next_url,
-                                              self.authenticated)
-
-    @tornado.web.asynchronous
-    def authenticated(self, user_id=None, redirect_url=None, username=None):
-        if user_id is not None:
-            self.set_secure_cookie('session_id', '%s|%s' % (user_id, username),
-                                   expires_days=30)
-            self.redirect(redirect_url or '/')
-        else:
-            self.set_secure_cookie('session_id', '')
-            error_msg = tornado.escape.url_escape('Error: Incorrect login')
-            self.redirect('/login?error=%s' % error_msg)
-
-
-class LogoutHandler(BaseHandler):
-    def get(self):
-        self.set_secure_cookie('session_id', '')
-        self.redirect('/')
 
 
 class MainHandler(BaseListHandler):

@@ -2,26 +2,20 @@
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
 import mock
-import os
-import support
 import tornado
 import unittest
 import urllib.parse
 
-from cihui import handler
+from cihui.handler import auth
+from cihui.handler import wordlist
+from cihui.handler import user
 
+from cihui import support
 from tornado.testing import AsyncHTTPTestCase
 
 
-class UITestCase(support.HandlerTestCase):
-    def get_app_kwargs(self):
-        args = super().get_app_kwargs()
-        args['static_path'] = os.path.join(os.path.dirname(__file__), '../static')
-        args['template_path'] = os.path.join(os.path.dirname(__file__), '../templates')
-        return args
-
-
-class LoginTest(UITestCase):
+# TODO(gmwils): split into separate test cases
+class LoginTest(support.UITestCase):
     def setUp(self):
         class AccountData:
             def authenticate_web_user(self, user, password, next_url, cb):
@@ -41,9 +35,9 @@ class LoginTest(UITestCase):
                 self.write(self.request.uri)
 
         return [(r'/login',
-                 handler.LoginHandler,
+                 auth.LoginHandler,
                  dict(account_db=self.account_db)),
-                (r'/logout', handler.LogoutHandler),
+                (r'/logout', auth.LogoutHandler),
                 (r'/.*', HomeHandler)]
 
     def test_show_login(self):
@@ -87,7 +81,7 @@ class LoginTest(UITestCase):
         self.assertIn('session_id=', response.headers['Set-Cookie'])
 
 
-class UserTest(UITestCase):
+class UserTest(support.UITestCase):
     def setUp(self):
         class AccountData:
             def create_account(self, user, password, callback):
@@ -100,9 +94,9 @@ class UserTest(UITestCase):
         super(UserTest, self).setUp()
 
     def get_handlers(self):
-        return [(r'/user/(\w+)$', handler.UserHandler,
+        return [(r'/user/(\w+)$', user.UserHandler,
                  dict(account_db=self.account_db)),
-                (r'/user', handler.UserHandler,
+                (r'/user', user.UserHandler,
                  dict(account_db=self.account_db))]
 
     def test_show_new_user_page(self):
@@ -158,7 +152,7 @@ class AtomFeedTest(support.HandlerTestCase):
 
     def get_handlers(self):
         return [(r'/atom.xml',
-                 handler.AtomHandler,
+                 wordlist.AtomHandler,
                  dict(list_db=self.list_db))]
 
     def test_atom_feed(self):
@@ -169,7 +163,7 @@ class AtomFeedTest(support.HandlerTestCase):
         self.assertIn(b'Test Item', response.body)
 
 
-class DisplayWordListTest(UITestCase):
+class DisplayWordListTest(support.UITestCase):
     def setUp(self):
         class ListData:
             def get_word_list(self, list_id, callback):
@@ -188,7 +182,7 @@ class DisplayWordListTest(UITestCase):
 
     def get_handlers(self):
         return [(r'/list/([0-9]+)[^\.]*(\.?\w*)',
-                 handler.WordListHandler,
+                 wordlist.WordListHandler,
                  dict(list_db=self.list_db))]
 
     def test_show_word_list(self):

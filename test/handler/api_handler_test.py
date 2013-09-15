@@ -2,12 +2,12 @@
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
 import json
-import support
 import urllib.error
 import urllib.parse
 import urllib.request
 
-from cihui import api_handler
+from cihui import support
+from cihui.handler import api
 from tornado.testing import AsyncHTTPTestCase
 
 
@@ -32,7 +32,7 @@ class AuthTest(APITestBase):
 
         self.data_layer = Data()
 
-        class MainHandler(api_handler.APIHandler):
+        class MainHandler(api.APIHandler):
             def get(self):
                 self.write("Hello, world")
 
@@ -75,7 +75,7 @@ class AccountTest(APITestBase):
 
         self.account_data_layer = Data()
         return [(r'/api/account',
-                 api_handler.APIAccountHandler,
+                 api.APIAccountHandler,
                  dict(account_db=self.account_data_layer))]
 
     def test_find_or_create_account(self):
@@ -114,7 +114,7 @@ class ListTest(APITestBase):
         self.list_data_layer = ListData()
 
         return [(r'/api/list',
-                 api_handler.APIListHandler,
+                 api.APIListHandler,
                  dict(account_db=self.account_data_layer,
                       list_db=self.list_data_layer))]
 

@@ -7,12 +7,10 @@ import json
 import tornado.web
 import unicodedata
 
-from cihui import formatter
-from cihui import handler
-from cihui import uri
+from cihui.handler import common
 
 
-class APIHandler(handler.BaseHandler):
+class APIHandler(common.BaseHandler):
     def initialize(self, account_db):
         self.account_db = account_db
 
