@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
-import base64
-import functools
-import json
 import tornado.web
 
 from cihui import atom_formatter
@@ -76,12 +73,14 @@ class LoginHandler(BaseHandler):
         username = self.get_argument('user')
         password = self.get_argument('password')
         next_url = self.get_argument('next', '/list/1')
-        self.account_db.authenticate_web_user(username, password, next_url, self.authenticated)
+        self.account_db.authenticate_web_user(username, password, next_url,
+                                              self.authenticated)
 
     @tornado.web.asynchronous
     def authenticated(self, user_id=None, redirect_url=None, username=None):
         if user_id is not None:
-            self.set_secure_cookie('session_id', '%s|%s' % (user_id, username), expires_days=30)
+            self.set_secure_cookie('session_id', '%s|%s' % (user_id, username),
+                                   expires_days=30)
             self.redirect(redirect_url or '/')
         else:
             self.set_secure_cookie('session_id', '')
@@ -104,7 +103,8 @@ class MainHandler(BaseListHandler):
             word_lists = []
 
         def add_stub(word_list):
-            word_list['stub'] = make_stub(word_list.get('id'), word_list.get('stub'))
+            word_list['stub'] = make_stub(word_list.get('id'),
+                                          word_list.get('stub'))
             return word_list
 
         word_lists = list(map(add_stub, word_lists))
@@ -120,10 +120,12 @@ class AtomHandler(BaseListHandler):
         entry_list = []
         for word_list in word_lists:
             entry = {'title': word_list.get('title'),
-                     'link': '/list/%s' % make_stub(word_list.get('id'), word_list.get('stub'))}
+                     'link': '/list/%s' % make_stub(word_list.get('id'),
+                                                    word_list.get('stub'))}
             entry_list.append(entry)
 
-        self.write(atom_formatter.format_atom(title='CiHui', entries=entry_list))
+        self.write(atom_formatter.format_atom(title='CiHui',
+                                              entries=entry_list))
         self.finish()
 
 
@@ -172,8 +174,17 @@ class WordListHandler(BaseListHandler):
                 word_list['words'] = []
             word_list['words'] = list(map(add_description, word_list['words']))
             word_count = len(word_list['words'])
-            self.render('word_list.html', word_list=word_list, word_count=word_count)
+
+            # TODO(gmwils): build filename from canonical representation
+            base_uri = self.request.path.lower()
+            if base_uri.endswith('.html'):
+                base_uri = base_uri[0:-5]
+            elif base_uri.endswith('.htm'):
+                base_uri = base_uri[0:-4]
+
+            self.render('word_list.html',
+                        word_list=word_list,
+                        word_count=word_count,
+                        base_uri=base_uri)
         else:
             self.send_error(404)
-
-
