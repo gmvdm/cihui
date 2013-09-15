@@ -14,7 +14,8 @@ class BaseHandler(tornado.web.RequestHandler):
         # TODO(gmwils): refactor & test
         session_key = self.get_secure_cookie('session_id')
         if session_key:
-            return str(session_key, encoding='ascii').split('|')[1]
+            user_id, username = str(session_key, encoding='ascii').split('|')
+            return user_id
 
         return None
 
