@@ -2,9 +2,30 @@
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
 import mock
+import unittest
 
 from tornado.testing import AsyncHTTPTestCase
 from cihui.data import account
+
+
+class DigestTest(unittest.TestCase):
+    def test_identical_digest(self):
+        d1 = account.build_password_digest('password', 'salt')
+        d2 = account.build_password_digest('password', 'salt')
+
+        self.assertEqual(d1, d2)
+
+    def test_different_salt(self):
+        d1 = account.build_password_digest('password', 'salt1')
+        d2 = account.build_password_digest('password', 'salt2')
+
+        self.assertNotEqual(d1, d2)
+
+    def test_different_passwd(self):
+        d1 = account.build_password_digest('password1', 'salt')
+        d2 = account.build_password_digest('password2', 'salt')
+
+        self.assertNotEqual(d1, d2)
 
 
 class AccountDataTest(AsyncHTTPTestCase):
