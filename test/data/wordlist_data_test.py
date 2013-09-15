@@ -3,13 +3,12 @@
 
 import datetime
 import mock
-import unittest
 
 from tornado.testing import AsyncHTTPTestCase
-from cihui import data
+from cihui.data import wordlist
 
 
-class AccountDataTest(AsyncHTTPTestCase):
+class WordListDataTest(AsyncHTTPTestCase):
     def get_app(self):
         self.app = mock.Mock()
         return self.app
@@ -18,41 +17,10 @@ class AccountDataTest(AsyncHTTPTestCase):
         AsyncHTTPTestCase.setUp(self)
         self.db = mock.Mock()
         self.callback = mock.Mock()
-        self.accountdata = data.AccountData('', self.db)
+        self.listdata = wordlist.WordListData('', self.db)
 
 
-class ListDataTest(AsyncHTTPTestCase):
-    def get_app(self):
-        self.app = mock.Mock()
-        return self.app
-
-    def setUp(self):
-        AsyncHTTPTestCase.setUp(self)
-        self.db = mock.Mock()
-        self.callback = mock.Mock()
-        self.listdata = data.ListData('', self.db)
-
-
-class AuthenticateAccountTest(AccountDataTest):
-    def test_authenticate_basic_account(self):
-        self.assertTrue(
-            self.accountdata.authenticate_api_user('user', 'secret'))
-
-    def test_no_authenticate_basic_account(self):
-        self.assertFalse(
-            self.accountdata.authenticate_api_user('user', 'badpassword'))
-
-
-class GetAccountTest(AccountDataTest):
-    def test_get_account_sql(self):
-        self.accountdata.get_account('user@example.com', self.callback)
-        self.db.execute.assert_called_once()
-        self.assertEqual(self.accountdata.callbacks['0|user@example.com'], self.callback)
-
-    # TODO(gmwils): improve testing for accounts
-
-
-class GetManyListsTest(ListDataTest):
+class GetManyListsTest(WordListDataTest):
     def test_get_lists_sql(self):
         self.listdata.get_lists(self.callback)
         self.db.execute.assert_called_once()
@@ -67,7 +35,7 @@ class GetManyListsTest(ListDataTest):
         self.callback.assert_called_once_with([])
 
 
-class GetWordListTest(ListDataTest):
+class GetWordListTest(WordListDataTest):
     def test_get_basic_list(self):
         self.listdata.get_word_list(12, self.callback)
         self.db.execute.assert_called_once()
@@ -110,7 +78,7 @@ class GetWordListTest(ListDataTest):
                                                'modified_at': sample_date})
 
 
-class CreateListTest(ListDataTest):
+class CreateListTest(WordListDataTest):
     def test_create_empty_list_sql(self):
         self.listdata.create_list('Test List', [], self.callback)
         self.db.execute.assert_called_once()
@@ -140,7 +108,7 @@ class CreateListTest(ListDataTest):
         self.callback.assert_called_once_with(True, list_id=42)
 
 
-class ListExistsTest(ListDataTest):
+class ListExistsTest(WordListDataTest):
     def test_list_exists(self):
         self.listdata.list_exists('list name', self.callback)
         self.db.execute.assert_called_once()

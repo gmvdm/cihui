@@ -3,7 +3,7 @@
 
 import unittest
 
-from cihui import database_url
+from cihui.data import database_url
 
 
 class TestMapDbUrl(unittest.TestCase):
