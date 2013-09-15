@@ -2,12 +2,12 @@
 # Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
 
 import json
-import unittest
-import urllib.request, urllib.parse, urllib.error
-
 import support
-from cihui import api_handler
+import urllib.error
+import urllib.parse
+import urllib.request
 
+from cihui import api_handler
 from tornado.testing import AsyncHTTPTestCase
 
 

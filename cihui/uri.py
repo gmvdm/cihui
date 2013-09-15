@@ -29,4 +29,3 @@ def title_to_stub(title):
     stub = re.sub(r'-+$', '', stub)
 
     return stub
-

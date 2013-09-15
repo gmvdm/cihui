@@ -87,7 +87,6 @@ class GetWordListTest(ListDataTest):
         cursor.rowcount = 1
         cursor.fetchone.return_value = tuple([1, 'Test', None, sample_date])
 
-
         self.listdata.callbacks['0|1'] = self.callback
         self.listdata._on_get_word_list_response('0|1', cursor)
 

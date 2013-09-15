@@ -87,7 +87,6 @@ class LoginTest(UITestCase):
         self.assertIn('session_id=', response.headers['Set-Cookie'])
 
 
-
 class UserTest(UITestCase):
     def setUp(self):
         class AccountData:
