@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 # Copyright (c) 2013 Geoff Wilson <gmwils@gmail.com>
 
-from cihui import app, data
+from cihui import app
+from cihui.data import account, wordlist
 from selenium import webdriver
 from threading import Thread
 
 import os
-import sys
 import tornado.ioloop
 import unittest
 
@@ -25,8 +25,8 @@ class Server(Thread):
 class TestHomepage(unittest.TestCase):
     def setUp(self):
         db_url = os.environ.get('DATABASE_URL', 'postgresql://localhost:5432/cihui')
-        self.application = app.CiHuiApplication(data.AccountData(db_url),
-                                                data.ListData(db_url),
+        self.application = app.CiHuiApplication(account.AccountData(db_url),
+                                                wordlist.WordListData(db_url),
                                                 os.environ.get('COOKIE_SECRET', None),
                                                 debug=False)
 
