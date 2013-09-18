@@ -49,6 +49,53 @@ class AuthenticateAccountTest(AccountDataTest):
         self.assertFalse(
             self.accountdata.authenticate_api_user('user', 'badpassword'))
 
+    def test_auth_web_user(self):
+        self.accountdata.authenticate_web_user('user', 'secret', '/next',
+                                               self.callback)
+        self.db.execute.assert_called_once()
+        self.assertEqual(self.accountdata.callbacks['0|user'], self.callback)
+
+    def test_auth_web_user_response_empty(self):
+        cursor = mock.MagicMock(side_effects=[])
+
+        self.accountdata.callbacks['0|user'] = self.callback
+        self.accountdata._on_authenticate_web_user('secret', '/next', '0|user', cursor)
+
+        self.callback.assert_called_once_with()
+
+    def test_auth_web_user_response_error(self):
+        cursor = mock.MagicMock(side_effects=[])
+
+        self.accountdata.callbacks['0|user'] = self.callback
+        self.accountdata._on_authenticate_web_user('secret', '/next', '0|user', cursor, 'Error')
+
+        self.callback.assert_called_once_with()
+
+    def test_auth_web_user_response_invalid_password(self):
+        cursor = mock.MagicMock(side_effects=[])
+        passwd_hash = ''
+        passwd_salt = ''
+        cursor.rowcount = 1
+        cursor.fetchone.return_value = tuple([1, 'test@exmaple.com', passwd_hash, passwd_salt])
+
+        self.accountdata.callbacks['0|user'] = self.callback
+        self.accountdata._on_authenticate_web_user('secret', '/next', '0|user', cursor)
+
+        self.callback.assert_called_once_with()
+
+    def test_auth_web_user_response_valid_password(self):
+        passwd_salt = 'testsalt'
+        passwd_hash = account.build_password_digest('secret', passwd_salt).decode()
+
+        cursor = mock.MagicMock(side_effects=[])
+        cursor.rowcount = 1
+        cursor.fetchone.return_value = tuple([1, 'test@example.com', passwd_hash, passwd_salt])
+
+        self.accountdata.callbacks['0|user'] = self.callback
+        self.accountdata._on_authenticate_web_user('secret', '/next', '0|user', cursor)
+
+        self.callback.assert_called_once_with(1, '/next', 'test@example.com')
+
 
 class GetAccountTest(AccountDataTest):
     def test_get_account_sql(self):
