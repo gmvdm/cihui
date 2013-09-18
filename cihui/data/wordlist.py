@@ -39,6 +39,32 @@ class WordListData(base.AsyncDatabase):
 
             callback(word_lists)
 
+    def get_user_lists(self, user_id, callback):
+        cb_id = self.add_callback(callback)
+        cb = functools.partial(self._on_get_lists_response, cb_id)
+
+        self.db.execute('''SELECT id, title, stub
+                           FROM list
+                           WHERE account_id = %s
+                           ORDER BY modified_at DESC;''',
+                        (user_id,),
+                        callback=cb)
+
+    # TODO(gmwils) refactor based on get_list
+    def _on_get_user_lists_response(self, cb_id, cursor, error=None):
+        callback, _ = self.get_callback(cb_id)
+
+        if cursor is None or cursor.rowcount == 0:
+            logging.warning('No lists found in database')
+            callback(None)
+        else:
+            word_lists = []
+            for word_list in cursor:
+                word_lists.append({'id': word_list[0], 'title': word_list[1],
+                                   'stub': word_list[2]})
+
+            callback(word_lists)
+
     def get_word_list(self, list_id, callback):
         cb_id = self.add_callback(callback, list_id)
         cb = functools.partial(self._on_get_word_list_response, cb_id)

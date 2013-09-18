@@ -14,6 +14,17 @@ class BaseListHandler(common.BaseHandler):
     def initialize(self, list_db):
         self.list_db = list_db
 
+    def format_wordlists(self, word_lists):
+        if word_lists is None:
+            return []
+
+        def add_stub(word_list):
+            word_list['stub'] = make_stub(word_list.get('id'),
+                                          word_list.get('stub'))
+            return word_list
+
+        return list(map(add_stub, word_lists))
+
 
 def make_stub(list_id, stub=''):
     if stub:
@@ -22,22 +33,33 @@ def make_stub(list_id, stub=''):
     return list_id
 
 
-class MainHandler(BaseListHandler):
+class IndexHandler(BaseListHandler):
     @tornado.web.asynchronous
     @gen.engine
     def get(self):
+        if self.current_user:
+            self.redirect('/home')
+            return
+
         word_lists = yield gen.Task(self.list_db.get_lists)
-        if word_lists is None:
-            word_lists = []
-
-        def add_stub(word_list):
-            word_list['stub'] = make_stub(word_list.get('id'),
-                                          word_list.get('stub'))
-            return word_list
-
-        word_lists = list(map(add_stub, word_lists))
+        word_lists = self.format_wordlists(word_lists)
 
         self.render('index.html', word_lists=word_lists)
+
+
+class HomeHandler(BaseListHandler):
+    @tornado.web.asynchronous
+    @gen.engine
+    def get(self):
+        if not self.current_user:
+            self.redirect('/')
+            return
+
+        word_lists = yield gen.Task(self.list_db.get_user_lists,
+                                    self.current_user)
+        word_lists = self.format_wordlists(word_lists)
+
+        self.render('home.html', word_lists=word_lists)
 
 
 class AtomHandler(BaseListHandler):

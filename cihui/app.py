@@ -32,7 +32,8 @@ class CiHuiApplication(tornado.web.Application):
         else:
             settings['cookie_secret'] = cookie_secret
 
-        handlers = [(r'/', wordlist.MainHandler, dict(list_db=self.list_db)),
+        handlers = [(r'/', wordlist.IndexHandler, dict(list_db=self.list_db)),
+                    (r'/home', wordlist.HomeHandler, dict(list_db=self.list_db)),
                     (r'/api/account', api.APIAccountHandler, dict(account_db=self.account_db)),
                     (r'/api/list', api.APIListHandler, dict(account_db=self.account_db, list_db=self.list_db)),
 

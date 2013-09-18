@@ -20,7 +20,7 @@ class LoginHandler(common.BaseHandler):
         # TODO(gmwils): require HTTPS for login/app
         username = self.get_argument('user')
         password = self.get_argument('password')
-        next_url = self.get_argument('next', '/list/1')
+        next_url = self.get_argument('next', '/home')
         self.account_db.authenticate_web_user(username, password, next_url,
                                               self.authenticated)
 

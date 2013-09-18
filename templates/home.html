@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block header %}
+  <h1>词汇 (cí huì)</h1>
+  <h2>Chinese vocabulary</h2>
+{% end %}
+
+{% block content %}
+<ul id='wordlists'>
+{% for word_list in word_lists %}
+  <li><a href='list/{{ word_list['stub'] }}'>{{ word_list['title'] }}</a></li>
+{% end %}
+</ul>
+
+<p><a href='http://www.arizona-software.ch/provoc/'>ProVoc</a> can be used to
+  import the .tsv files.</p>
+
+{% end %}
