@@ -16,12 +16,10 @@ class UserHandler(common.BaseHandler):
         if username == 'new':
             self.render('user/new.html', error_msg=error_msg)
         else:
-            properties = {}
-            properties['username'] = username
-            properties['error_msg'] = error_msg
-
             # TODO(gmwils): get user info from the database
-            self.render('user/show.html', properties)
+            self.render('user/show.html',
+                        username=username,
+                        error_msg=error_msg)
 
     @tornado.web.asynchronous
     @gen.engine
