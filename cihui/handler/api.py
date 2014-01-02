@@ -66,11 +66,15 @@ class APIAccountHandler(APIHandler):
         self.account_db.get_account(email, self.got_account)
 
     def got_account(self, account):
+        result = {}
         if account is not None:
-            self.write('Received email: "%s", id: %s' % (account['email'], account['id']))
+            result['account_id'] = account['id']
+            result['account_email'] = account.get('email')
+
+            self.write(json.dumps(result))
         else:
             # TODO(gmwils): set an error code
-            self.write('No account received')
+            self.write(json.dumps(result))
 
         self.finish()
 

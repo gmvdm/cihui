@@ -78,6 +78,22 @@ class AccountTest(APITestBase):
                  api.APIAccountHandler,
                  dict(account_db=self.account_data_layer))]
 
+    def test_find_account_by_email(self):
+        query_params = {'email': 'test@example.com'}
+        query_string = urllib.parse.urlencode(query_params)
+        self.http_client.fetch(self.get_url('/api/account?%s' % query_string),
+                               self.stop,
+                               method='GET',
+                               headers=None,
+                               auth_username='user', auth_password='secret')
+
+        response = self.wait()
+        self.assertEqual(200, response.code)
+
+        result = json.loads(response.body.decode('utf-8'))
+        self.assertEqual(result['account_id'], 'id123')
+        self.assertEqual(result['account_email'], 'test@example.com')
+
     def test_find_or_create_account(self):
         data = self.url_encode_data({'email': 'test@example.com'})
 
