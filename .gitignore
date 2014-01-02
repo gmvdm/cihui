@@ -5,3 +5,4 @@ lib/
 scripts/prod*
 NOTES.org
 .coverage
+.env
