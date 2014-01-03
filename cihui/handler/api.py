@@ -68,8 +68,8 @@ class APIAccountHandler(APIHandler):
     def got_account(self, account):
         result = {}
         if account is not None:
-            result['account_id'] = account['id']
-            result['account_email'] = account.get('email')
+            result['account_id'] = account['account_id']
+            result['account_email'] = account.get('account_email')
 
             self.write(json.dumps(result))
         else:

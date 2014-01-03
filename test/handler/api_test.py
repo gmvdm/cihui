@@ -68,7 +68,7 @@ class AccountTest(APITestBase):
     def get_handlers(self):
         class Data:
             def get_account(self, email, callback):
-                callback({'email': email, 'id': 'id123'})
+                callback({'account_email': email, 'account_id': 'id123'})
 
             def authenticate_api_user(self, user, passwd):
                 return True
