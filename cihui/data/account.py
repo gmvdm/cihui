@@ -61,7 +61,8 @@ class AccountData(base.AsyncDatabase):
         cb_id = self.add_callback(callback, email)
         cb = functools.partial(self._on_get_account_response, cb_id)
 
-        self.db.execute('SELECT * FROM account WHERE email = %s;', (email,),
+        self.db.execute('SELECT id, email, created_at, modified_at FROM account WHERE email = %s;',
+                        (email,),
                         callback=cb)
 
     def _on_get_account_response(self, cb_id, cursor, error=None):
@@ -69,9 +70,17 @@ class AccountData(base.AsyncDatabase):
 
         if cursor is None or cursor.rowcount == 0:
             callback(None)
-        else:
-            # TODO(gmwils) build an account object
-            callback(cursor.fetchall())
+
+        result = cursor.fetchone()
+        response = {}
+
+        if result is not None and len(result) >= 4:
+            response['account_id'] = result[0]
+            response['account_email'] = result[1]
+            response['created_at'] = result[2]
+            response['modified_at'] = result[3]
+
+        callback(response)
 
     def create_account(self, email, passwd, callback):
         cb_id = self.add_callback(callback, email)

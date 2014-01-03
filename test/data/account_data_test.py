@@ -103,4 +103,21 @@ class GetAccountTest(AccountDataTest):
         self.db.execute.assert_called_once()
         self.assertEqual(self.accountdata.callbacks['0|user@example.com'], self.callback)
 
-    # TODO(gmwils): improve testing for accounts
+    def test_get_account_result(self):
+        cursor = mock.MagicMock(side_effects=[])
+        cursor.rowcount = 1
+        cursor.fetchone.return_value = tuple([1, 'test@example.com', None, None])
+
+        self.accountdata.callbacks['0|user'] = self.callback
+        self.accountdata._on_get_account_response('0|user', cursor)
+
+        expected_result = {
+            'account_id': 1,
+            'account_email': 'test@example.com',
+            'created_at': None,
+            'modified_at': None
+            }
+
+        self.callback.assert_called_once_with(expected_result)
+
+    # TODO(gmwils): test for when no account found
