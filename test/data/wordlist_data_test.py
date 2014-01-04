@@ -131,3 +131,8 @@ class ListExistsTest(WordListDataTest):
         self.listdata._on_list_exists('0|testlist', cursor)
 
         self.callback.assert_called_once_with(False)
+
+    def test_list_exists_for_account(self):
+        self.listdata.list_exists_for_account('list name', 1, self.callback)
+        self.db.execute.assert_called_once()
+        self.assertEqual(self.listdata.callbacks['0|list name,1'], self.callback)

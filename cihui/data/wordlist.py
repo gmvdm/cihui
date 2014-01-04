@@ -101,6 +101,13 @@ class WordListData(base.AsyncDatabase):
         self.db.execute('SELECT max(id) FROM list WHERE title=%s', (list_name,),
                         callback=cb)
 
+    def list_exists_for_account(self, list_name, account_id, callback):
+        cb_id = self.add_callback(callback, '%s,%s' % (list_name, account_id))
+        cb = functools.partial(self._on_list_exists, cb_id)
+        self.db.execute('SELECT max(id) FROM list WHERE title=%s AND account_id=%s',
+                        (list_name, account_id,),
+                        callback=cb)
+
     def _on_list_exists(self, cb_id, cursor, error=None):
         callback, list_name = self.get_callback(cb_id)
 

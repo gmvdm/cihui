@@ -126,6 +126,9 @@ class ListTest(APITestBase):
             def list_exists(self, list_name, callback):
                 callback(True)
 
+            def list_exists_for_account(self, list_name, account_id, callback):
+                callback(True)
+
         self.account_data_layer = AccountData()
         self.list_data_layer = ListData()
 

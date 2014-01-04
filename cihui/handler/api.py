@@ -99,7 +99,6 @@ class APIListHandler(APIHandler):
         body_json = json.loads(body_str)
         list_name = body_json.get('title', None)
         words = body_json.get('words', None)
-        email_address = body_json.get('email_address', None)
         account_id = body_json.get('account_id', None)
 
         if list_name is None:
@@ -110,17 +109,22 @@ class APIListHandler(APIHandler):
             self.created_list(False, 'No word list supplied')
             return
 
-        if email_address is None and account_id is None:
-            self.created_list(False, 'Email address or account id required')
+        if account_id is None:
+            self.created_list(False, 'Account id required')
             return
 
         words = [normalize_word_array(word) for word in words]
 
-        cb = functools.partial(self.on_list_exists, list_name, words, email_address, account_id)
-        self.list_db.list_exists(list_name, cb)
+        cb = functools.partial(self.on_list_exists,
+                               list_name,
+                               words,
+                               account_id)
 
-    def on_list_exists(self, list_name, words, email_address, account_id, list_id):
-        self.list_db.create_list(list_name, words, self.created_list, list_id, account_id=account_id, email_address=email_address)
+        self.list_db.list_exists_for_account(list_name, account_id, cb)
+
+    def on_list_exists(self, list_name, words, account_id, list_id=None):
+        self.list_db.create_list(list_name, words, self.created_list,
+                                 list_id, account_id=account_id)
 
     def created_list(self, success, reason=None, list_id=None):
         params = {}
