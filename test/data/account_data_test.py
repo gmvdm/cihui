@@ -103,10 +103,15 @@ class GetAccountTest(AccountDataTest):
         self.db.execute.assert_called_once()
         self.assertEqual(self.accountdata.callbacks['0|user@example.com'], self.callback)
 
+    def test_get_account_by_id_sql(self):
+        self.accountdata.get_account_by_id(1, self.callback)
+        self.db.execute.assert_called_once()
+        self.assertEqual(self.accountdata.callbacks['0|1'], self.callback)
+
     def test_get_account_result(self):
         cursor = mock.MagicMock(side_effects=[])
         cursor.rowcount = 1
-        cursor.fetchone.return_value = tuple([1, 'test@example.com', None, None])
+        cursor.fetchone.return_value = tuple([1, 'test@example.com', 'Test User', None, None])
 
         self.accountdata.callbacks['0|user'] = self.callback
         self.accountdata._on_get_account_response('0|user', cursor)
@@ -114,6 +119,7 @@ class GetAccountTest(AccountDataTest):
         expected_result = {
             'account_id': 1,
             'account_email': 'test@example.com',
+            'account_name': 'Test User',
             'created_at': None,
             'modified_at': None
             }

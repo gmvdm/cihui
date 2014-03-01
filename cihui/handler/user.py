@@ -11,15 +11,23 @@ class UserHandler(common.BaseHandler):
     def initialize(self, account_db):
         self.account_db = account_db
 
-    def get(self, username):
+    @tornado.web.asynchronous
+    @gen.engine
+    def get(self, user_id):
         error_msg = self.get_argument('error', default='')
-        if username == 'new':
+        if user_id == 'new':
             self.render('user/new.html', error_msg=error_msg)
-        else:
-            # TODO(gmwils): get user info from the database
-            self.render('user/show.html',
-                        username=username,
-                        error_msg=error_msg)
+            return
+
+        user_info = yield gen.Task(self.account_db.get_account_by_id, user_id)
+        user_name = user_info.get('account_name')
+        if user_name is None:
+            user_name = user_id
+
+        self.render('user/show.html',
+                    user_name=user_name,
+                    user_id=user_id,
+                    error_msg=error_msg)
 
     @tornado.web.asynchronous
     @gen.engine

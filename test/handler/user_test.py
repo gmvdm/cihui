@@ -16,6 +16,9 @@ class UserTest(support.UITestCase):
                 else:
                     callback(123)
 
+            def get_account_by_id(self, user_id, callback):
+                callback({'account_name': 'Tester'})
+
         self.account_db = AccountData()
         super(UserTest, self).setUp()
 
@@ -38,6 +41,7 @@ class UserTest(support.UITestCase):
 
         self.assertEqual(200, response.code)
         self.assertIn(b'test_user', response.body)
+        self.assertIn(b'Tester', response.body)
 
     def test_create_account(self):
         params = {'email': 'john@example.com', 'password': 'good'}

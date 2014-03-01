@@ -1,12 +1,11 @@
 {% extends "../layout.html" %}
 
 {% block header %}
-  <h1>{{ username }}</h1>
+  <h1>{{ user_name }}</h1>
 {% end %}
 
 {% block content %}
 
-Some info about the given user.
+Some info about user with id: {{ user_id }}.
 
 {% end %}
-

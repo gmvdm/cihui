@@ -61,8 +61,16 @@ class AccountData(base.AsyncDatabase):
         cb_id = self.add_callback(callback, email)
         cb = functools.partial(self._on_get_account_response, cb_id)
 
-        self.db.execute('SELECT id, email, created_at, modified_at FROM account WHERE email = %s;',
+        self.db.execute('SELECT id, email, name, created_at, modified_at FROM account WHERE email = %s;',
                         (email,),
+                        callback=cb)
+
+    def get_account_by_id(self, account_id, callback):
+        cb_id = self.add_callback(callback, account_id)
+        cb = functools.partial(self._on_get_account_response, cb_id)
+
+        self.db.execute('SELECT id, email, name, created_at, modified_at FROM account WHERE id = %s;',
+                        (account_id,),
                         callback=cb)
 
     def _on_get_account_response(self, cb_id, cursor, error=None):
@@ -74,11 +82,12 @@ class AccountData(base.AsyncDatabase):
         result = cursor.fetchone()
         response = {}
 
-        if result is not None and len(result) >= 4:
+        if result is not None and len(result) >= 5:
             response['account_id'] = result[0]
             response['account_email'] = result[1]
-            response['created_at'] = result[2]
-            response['modified_at'] = result[3]
+            response['account_name'] = result[2]
+            response['created_at'] = result[3]
+            response['modified_at'] = result[4]
 
         callback(response)
 
