@@ -11,3 +11,6 @@ pep8: find main.py cihui test -name '*.py' | xargs pep8
 test: py.test test
 int: py.test scripts/test_*
 cov: py.test --cov cihui --cov-report term-missing test
+
+download: curl -o backups/latest.dmp `heroku pgbackups:url`
+backup: heroku pgbackups:capture

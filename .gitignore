@@ -6,3 +6,4 @@ scripts/prod*
 NOTES.org
 .coverage
 .env
+backups
