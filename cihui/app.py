@@ -42,6 +42,7 @@ class CiHuiApplication(tornado.web.Application):
                     (r'/logout', auth.LogoutHandler),
                     tornado.web.url(r'/list/([0-9]+)[^\.]*(\.?\w*)', wordlist.WordListHandler, dict(list_db=self.list_db), name='list'),
                     (r'/user/(\w+)$', user.UserHandler, dict(account_db=self.account_db)),
+                    (r'/user/(\w+)/(\w+)$', user.UserHandler, dict(account_db=self.account_db)),
                     (r'/user', user.UserHandler, dict(account_db=self.account_db)),
                     ]
 

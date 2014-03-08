@@ -13,7 +13,7 @@ class UserHandler(common.BaseHandler):
 
     @tornado.web.asynchronous
     @gen.engine
-    def get(self, user_id):
+    def get(self, user_id, action=None):
         error_msg = self.get_argument('error', default='')
         if user_id == 'new':
             self.render('user/new.html', error_msg=error_msg)
@@ -21,24 +21,36 @@ class UserHandler(common.BaseHandler):
 
         user_info = yield gen.Task(self.account_db.get_account_by_id, user_id)
         user_name = user_info.get('account_name')
+        user_email = user_info.get('account_email')
+
         if user_name is None:
             user_name = user_id
 
-        self.render('user/show.html',
+        template_path = 'user/show.html'
+        if action == 'edit':
+            template_path = 'user/edit.html'
+
+        self.render(template_path,
                     user_name=user_name,
+                    user_email=user_email,
                     user_id=user_id,
                     error_msg=error_msg)
 
     @tornado.web.asynchronous
     @gen.engine
-    def post(self):
-        email = self.get_argument('email')
-        passwd = self.get_argument('password')
+    def post(self, user_id=None):
+        if user_id is None:
+            # New account
+            email = self.get_argument('email')
+            passwd = self.get_argument('password')
 
-        # TODO(gmwils): validate the fields
-        user_id = yield gen.Task(self.account_db.create_account, email, passwd)
+            # TODO(gmwils): validate the fields
+            new_user_id = yield gen.Task(self.account_db.create_account, email, passwd)
 
-        if user_id is not None:
-            self.redirect('/user/%s' % user_id)
+            if new_user_id is not None:
+                self.redirect('/user/%s' % new_user_id)
+            else:
+                self.redirect('/')
         else:
-            self.redirect('/')
+            # TODO(gmwils): save the updated account
+            self.redirect('/user/%s' % user_id)

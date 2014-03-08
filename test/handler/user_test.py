@@ -25,6 +25,8 @@ class UserTest(support.UITestCase):
     def get_handlers(self):
         return [(r'/user/(\w+)$', user.UserHandler,
                  dict(account_db=self.account_db)),
+                (r'/user/(\w+)/(\w+)$', user.UserHandler,
+                 dict(account_db=self.account_db)),
                 (r'/user', user.UserHandler,
                  dict(account_db=self.account_db))]
 
@@ -37,6 +39,14 @@ class UserTest(support.UITestCase):
 
     def test_show_specific_user(self):
         self.http_client.fetch(self.get_url('/user/test_user'), self.stop)
+        response = self.wait()
+
+        self.assertEqual(200, response.code)
+        self.assertIn(b'test_user', response.body)
+        self.assertIn(b'Tester', response.body)
+
+    def test_show_user_edit(self):
+        self.http_client.fetch(self.get_url('/user/test_user/edit'), self.stop)
         response = self.wait()
 
         self.assertEqual(200, response.code)
