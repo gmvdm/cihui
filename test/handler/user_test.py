@@ -19,6 +19,9 @@ class UserTest(support.UITestCase):
             def get_account_by_id(self, user_id, callback):
                 callback({'account_name': 'Tester'})
 
+            def update_account(self, account_id, email, username, passwd, callback):
+                callback(None)
+
         self.account_db = AccountData()
         super(UserTest, self).setUp()
 
@@ -80,3 +83,16 @@ class UserTest(support.UITestCase):
         self.assertEqual('/', response.headers['Location'])
 
     # TODO(gmwils): add test cases for invalid arguements (bad formatting, insecure, etc)
+
+    def test_update_account(self):
+        params = {'username': 'John D', 'email': 'john@example.com', 'password': 'good'}
+        body = urllib.parse.urlencode(params)
+        self.http_client.fetch(self.get_url('/user/23'), self.stop,
+                               method='POST',
+                               headers=None,
+                               body=body,
+                               follow_redirects=False)
+        response = self.wait()
+
+        self.assertEqual(302, response.code)
+        self.assertEqual('/user/23', response.headers['Location'])

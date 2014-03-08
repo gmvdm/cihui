@@ -113,7 +113,6 @@ class AccountData(base.AsyncDatabase):
             callback(user_id)
 
     def update_account(self, account_id, email, username, password, callback):
-        # TODO(gmwils): update the account info
         # TODO(gmwils): figure out allowing password changes
         cb_id = self.add_callback(callback, account_id)
         cb = functools.partial(self._on_update_account_response, cb_id)

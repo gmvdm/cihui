@@ -127,3 +127,28 @@ class GetAccountTest(AccountDataTest):
         self.callback.assert_called_once_with(expected_result)
 
     # TODO(gmwils): test for when no account found
+
+
+class UpdateAccountTest(AccountDataTest):
+    def test_update_account(self):
+        self.accountdata.update_account(17, 'u@e.com', 'user', 'pass', self.callback)
+        self.db.execute.assert_called_once()
+        self.assertEqual(self.accountdata.callbacks['0|17'], self.callback)
+
+    def test_update_account_result(self):
+        cursor = mock.MagicMock(side_effects=[])
+        cursor.rowcount = 1
+        cursor.fetchone.return_value = tuple([1])
+
+        self.accountdata.callbacks['0|1'] = self.callback
+        self.accountdata._on_update_account_response('0|1', cursor)
+
+        self.callback.assert_called_once_with(None)
+
+    def test_update_account_result_failed(self):
+        cursor = None
+
+        self.accountdata.callbacks['0|1'] = self.callback
+        self.accountdata._on_update_account_response('0|1', cursor)
+
+        self.callback.assert_called_once_with('Unknown error updating the account')
