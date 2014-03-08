@@ -111,3 +111,22 @@ class AccountData(base.AsyncDatabase):
         else:
             user_id = cursor.fetchone()[0]
             callback(user_id)
+
+    def update_account(self, account_id, email, username, password, callback):
+        # TODO(gmwils): update the account info
+        # TODO(gmwils): figure out allowing password changes
+        cb_id = self.add_callback(callback, account_id)
+        cb = functools.partial(self._on_update_account_response, cb_id)
+
+        self.db.execute('UPDATE account SET email=%s, name=%s WHERE id=%s',
+                        (email, username, account_id),
+                        callback=cb)
+
+    def _on_update_account_response(self, cb_id, cursor, error=None):
+        callback, account_id = self.get_callback(cb_id)
+
+        if cursor is None or cursor.rowcount == 0:
+            # TODO(gmwils): return the error details
+            callback("Unknown error updating the account")
+        else:
+            callback(None)

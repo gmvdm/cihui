@@ -39,12 +39,13 @@ class UserHandler(common.BaseHandler):
     @tornado.web.asynchronous
     @gen.engine
     def post(self, user_id=None):
+        # TODO(gmwils): validate the fields
+        email = self.get_argument('email')
+        passwd = self.get_argument('password')
+        username = self.get_argument('username', default=user_id)
+
         if user_id is None:
             # New account
-            email = self.get_argument('email')
-            passwd = self.get_argument('password')
-
-            # TODO(gmwils): validate the fields
             new_user_id = yield gen.Task(self.account_db.create_account, email, passwd)
 
             if new_user_id is not None:
@@ -52,5 +53,14 @@ class UserHandler(common.BaseHandler):
             else:
                 self.redirect('/')
         else:
-            # TODO(gmwils): save the updated account
-            self.redirect('/user/%s' % user_id)
+            # Update existing account
+            error_msg = yield gen.Task(self.account_db.update_account,
+                                       user_id,
+                                       email,
+                                       username,
+                                       passwd)
+
+            if error_msg is None:
+                self.redirect('/user/%s' % user_id)
+            else:
+                self.redirect('/user/%s/edit?error=%s' % (user_id, error_msg))
