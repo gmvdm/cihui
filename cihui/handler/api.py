@@ -70,6 +70,8 @@ class APIAccountHandler(APIHandler):
         if account is not None:
             result['account_id'] = account['account_id']
             result['account_email'] = account.get('account_email')
+            result['skritter_user'] = account.get('skritter_user', '')
+            result['skritter_token'] = account.get('skritter_token', '')
 
             self.write(json.dumps(result))
         else:

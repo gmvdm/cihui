@@ -68,7 +68,9 @@ class AccountTest(APITestBase):
     def get_handlers(self):
         class Data:
             def get_account(self, email, callback):
-                callback({'account_email': email, 'account_id': 'id123'})
+                callback({'account_email': email, 'account_id': 'id123',
+                          'skritter_user': 'skuser',
+                          'skritter_token': '98765'})
 
             def authenticate_api_user(self, user, passwd):
                 return True
@@ -93,6 +95,8 @@ class AccountTest(APITestBase):
         result = json.loads(response.body.decode('utf-8'))
         self.assertEqual(result['account_id'], 'id123')
         self.assertEqual(result['account_email'], 'test@example.com')
+        self.assertEqual(result['skritter_user'], 'skuser')
+        self.assertEqual(result['skritter_token'], '98765')
 
     def test_find_or_create_account(self):
         data = self.url_encode_data({'email': 'test@example.com'})
