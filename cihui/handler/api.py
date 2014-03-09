@@ -71,7 +71,7 @@ class APIAccountHandler(APIHandler):
             result['account_id'] = account['account_id']
             result['account_email'] = account.get('account_email')
             result['skritter_user'] = account.get('skritter_user', '')
-            result['skritter_token'] = account.get('skritter_token', '')
+            result['skritter_access_token'] = account.get('skritter_access_token', '')
 
             self.write(json.dumps(result))
         else:
