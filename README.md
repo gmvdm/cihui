@@ -29,6 +29,22 @@ or
 
     foreman run cov
 
+## Configuration
+
+Cihui uses environment variables for most configuration.
+
+* API_USER -- username for API access (currently limited)
+* API_PASS -- password for API access (currently limited)
+* COOKIE_SECRET -- cookie secret for secure cookies.
+* DATABASE_URL -- connection string for Postgres
+  (eg. postgresql://localhost:5432/cihui).
+* PORT -- port to run the web server on (eg. 5000).
+* SKRITTER_OAUTH_CLIENT_ID -- client id for Skritter OAuth (see [Skritter API](http://www.skritter.com/api/v0/docs/authentication))
+* SKRITTER_OAUTH_CLIENT_SECRET -- client secret for Skritter OAuth
+* SKRITTER_REDIRECT_URI -- redirect uri for receiving Skritter OAuth
+  token. (eg. http://example.com/skritter/auth)
+
+
 ## Add a database migration
 
     alembic revision -m "Add a column"
