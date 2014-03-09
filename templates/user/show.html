@@ -5,7 +5,17 @@
 {% end %}
 
 {% block content %}
+<p>Some info about user with id: {{ user_id }}.</p>
+<ul>
+<li>Email: <a href='mailto:{{ user_email }}'>{{ user_email }}</a></li>
 
-Some info about user with id: {{ user_id }}.
+{% if skritter_user is not None %}
+<li>Skritter user: {{ skritter_user }}
+[<a href='/skritter/get'>Reconnect</a>]
+</li>
+{% else %}
+  <li><a href='/skritter/get'>Connect to your Skritter account</a>.</li>
+{% end %}
+</ul>
 
 {% end %}

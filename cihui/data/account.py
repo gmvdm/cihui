@@ -20,6 +20,7 @@ def build_password_digest(password, salt):
 class AccountData(base.AsyncDatabase):
     def __init__(self, db_url, db=None):
         super(AccountData, self).__init__(db_url, db)
+        self.get_account_fields = 'id, email, name, created_at, modified_at, skritter_user_id, skritter_access_token'
 
     def authenticate_api_user(self, user, passwd):
         valid_user = os.environ.get('API_USER', 'user')
@@ -61,7 +62,8 @@ class AccountData(base.AsyncDatabase):
         cb_id = self.add_callback(callback, email)
         cb = functools.partial(self._on_get_account_response, cb_id)
 
-        self.db.execute('SELECT id, email, name, created_at, modified_at FROM account WHERE email = %s;',
+        self.db.execute('SELECT ' + self.get_account_fields +
+                        ' FROM account WHERE email = %s;',
                         (email,),
                         callback=cb)
 
@@ -69,7 +71,8 @@ class AccountData(base.AsyncDatabase):
         cb_id = self.add_callback(callback, account_id)
         cb = functools.partial(self._on_get_account_response, cb_id)
 
-        self.db.execute('SELECT id, email, name, created_at, modified_at FROM account WHERE id = %s;',
+        self.db.execute('SELECT ' + self.get_account_fields +
+                        ' FROM account WHERE id = %s;',
                         (account_id,),
                         callback=cb)
 
@@ -88,6 +91,8 @@ class AccountData(base.AsyncDatabase):
             response['account_name'] = result[2]
             response['created_at'] = result[3]
             response['modified_at'] = result[4]
+            response['skritter_user'] = result[5]
+            response['skritter_access_token'] = result[6]
 
         callback(response)
 
@@ -126,6 +131,16 @@ class AccountData(base.AsyncDatabase):
 
         if cursor is None or cursor.rowcount == 0:
             # TODO(gmwils): return the error details
-            callback("Unknown error updating the account")
+            callback("Unknown error updating account id: %s" % account_id)
         else:
             callback(None)
+
+    def store_skritter_token(self, account_id, skritter_user_id, access_token,
+                             refresh_token, expiry_date,
+                             callback):
+        cb_id = self.add_callback(callback, account_id)
+        cb = functools.partial(self._on_update_account_response, cb_id)
+
+        self.db.execute('UPDATE account SET skritter_user_id=%s, skritter_access_token=%s, skritter_refresh_token=%s, skritter_token_expiry=%s WHERE id=%s',
+                        (skritter_user_id, access_token, refresh_token, expiry_date, account_id),
+                        callback=cb)

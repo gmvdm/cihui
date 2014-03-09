@@ -22,6 +22,7 @@ class UserHandler(common.BaseHandler):
         user_info = yield gen.Task(self.account_db.get_account_by_id, user_id)
         user_name = user_info.get('account_name')
         user_email = user_info.get('account_email')
+        skritter_user = user_info.get('skritter_user', None)
 
         if user_name is None:
             user_name = user_id
@@ -34,6 +35,7 @@ class UserHandler(common.BaseHandler):
                     user_name=user_name,
                     user_email=user_email,
                     user_id=user_id,
+                    skritter_user=skritter_user,
                     error_msg=error_msg)
 
     @tornado.web.asynchronous

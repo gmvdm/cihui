@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
+# Copyright (c) 2012-2014 Geoff Wilson <gmwils@gmail.com>
 
 from cihui.handler import api
 from cihui.handler import auth
+from cihui.handler import skritter
 from cihui.handler import wordlist
 from cihui.handler import user
 
@@ -20,6 +21,10 @@ class CiHuiApplication(tornado.web.Application):
         self.account_db = account_database
         self.list_db = list_database
 
+        self.skritter_client_id = os.environ.get('SKRITTER_OAUTH_CLIENT_ID')
+        self.skritter_client_secret = os.environ.get('SKRITTER_OAUTH_CLIENT_SECRET')
+        self.skritter_redirect_uri = os.environ.get('SKRITTER_REDIRECT_URI')
+
         settings = {'static_path': os.path.join(os.path.dirname(__file__), '../static'),
                     'template_path': os.path.join(os.path.dirname(__file__), '../templates'),
                     'xsrf_cookies': True,
@@ -34,6 +39,10 @@ class CiHuiApplication(tornado.web.Application):
 
         handlers = [(r'/', wordlist.IndexHandler, dict(list_db=self.list_db)),
                     (r'/home', wordlist.HomeHandler, dict(list_db=self.list_db)),
+                    (r'/skritter/(\w+)$', skritter.AuthHandler, dict(account_db=self.account_db,
+                                                                     client_id=self.skritter_client_id,
+                                                                     client_secret=self.skritter_client_secret,
+                                                                     redirect_uri=self.skritter_redirect_uri)),
                     (r'/api/account', api.APIAccountHandler, dict(account_db=self.account_db)),
                     (r'/api/list', api.APIListHandler, dict(account_db=self.account_db, list_db=self.list_db)),
 

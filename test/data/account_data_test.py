@@ -111,7 +111,7 @@ class GetAccountTest(AccountDataTest):
     def test_get_account_result(self):
         cursor = mock.MagicMock(side_effects=[])
         cursor.rowcount = 1
-        cursor.fetchone.return_value = tuple([1, 'test@example.com', 'Test User', None, None])
+        cursor.fetchone.return_value = tuple([1, 'test@example.com', 'Test User', None, None, None, None])
 
         self.accountdata.callbacks['0|user'] = self.callback
         self.accountdata._on_get_account_response('0|user', cursor)
@@ -121,7 +121,9 @@ class GetAccountTest(AccountDataTest):
             'account_email': 'test@example.com',
             'account_name': 'Test User',
             'created_at': None,
-            'modified_at': None
+            'modified_at': None,
+            'skritter_user': None,
+            'skritter_access_token': None,
             }
 
         self.callback.assert_called_once_with(expected_result)
@@ -151,4 +153,4 @@ class UpdateAccountTest(AccountDataTest):
         self.accountdata.callbacks['0|1'] = self.callback
         self.accountdata._on_update_account_response('0|1', cursor)
 
-        self.callback.assert_called_once_with('Unknown error updating the account')
+        self.callback.assert_called_once_with('Unknown error updating account id: 1')
