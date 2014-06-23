@@ -76,3 +76,11 @@ class DisplayWordListTest(support.UITestCase):
         self.assertEqual(200, response.code)
         self.assertIn('text/csv', response.headers['Content-Type'])
         self.assertIn(b'big', response.body)
+
+    def test_tsv_output(self):
+        self.http_client.fetch(self.get_url('/list/102.tsv'), self.stop)
+        response = self.wait()
+
+        self.assertEqual(200, response.code)
+        self.assertIn('text/tsv', response.headers['Content-Type'])
+        self.assertIn(b'big', response.body)

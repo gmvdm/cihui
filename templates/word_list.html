@@ -1,21 +1,21 @@
 {% extends "layout.html" %}
 
 {% block header %}
-  <h1>{{ word_list['title'] }}</h1>
+  <h1>{{ title }}</h1>
 {% end %}
 
 {% block content %}
-<input type='hidden' id='word_list_id' value='{{ word_list['id'] }}'/>
+<input type='hidden' id='word_list_id' value='{{ word_list_id }}'/>
 
 <p>{{ word_count }} words.</p>
-<p>Last updated: {{ word_list['modified_at'].strftime('%Y-%m-%d %H:%M:%S') }}</p>
+<p>Last updated: {{ modified_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
 <p>
  Download: <a href='{{ base_uri }}.csv'>csv</a>,
  <a href='{{ base_uri }}.tsv'>tsv</a>
 </p>
 
 
-{% for word_entry in word_list['words'] %}
+{% for word_entry in words %}
 <li class='word'><span class='zi'>{{ escape(word_entry[0]) }}</span>
  <span class='pinyin'>{{ escape(word_entry[1]) }}</span>
 <br/>

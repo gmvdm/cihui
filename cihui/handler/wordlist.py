@@ -79,62 +79,59 @@ class AtomHandler(BaseListHandler):
         self.finish()
 
 
+def add_description(entry):
+    if entry is not None:
+        entry.append(formatter.format_description(entry[2]))
+    return entry
+
+
 class WordListHandler(BaseListHandler):
     @tornado.web.asynchronous
+    @gen.coroutine
     def get(self, list_id, list_format):
-        callback = self.render_html_list
+        word_list = yield gen.Task(self.list_db.get_word_list, int(list_id))
 
         if list_format == '.csv':
-            callback = self.received_csv_list
+            self.set_content_header('text/csv')
+
+            for word in word_list['words']:
+                self.write('%s\n' % (formatter.format_word_as_csv(word)))
+            self.finish()
+
         elif list_format == '.tsv':
-            callback = self.received_tsv_list
+            self.set_content_header('text/tsv')
 
-        self.list_db.get_word_list(int(list_id), callback)
+            for word in word_list['words']:
+                self.write('%s\n' % (formatter.format_word_as_tsv(word)))
+            self.finish()
 
-    @tornado.web.asynchronous
-    def received_csv_list(self, word_list):
-        """ Return list in CSV format """
-        self.set_header('Content-Type', 'text/csv; charset=utf-8')
-        self.set_status(200)
-        for word in word_list['words']:
-            self.write('%s\n' % (formatter.format_word_as_csv(word)))
+        elif word_list is not None:  # html list
+            words = word_list.get('words', [])
+            words = list(map(add_description, words))
+            word_count = len(words)
 
-        self.finish()
-
-    @tornado.web.asynchronous
-    def received_tsv_list(self, word_list):
-        """ Return list in Tab separated format """
-        self.set_header('Content-Type', 'text/tsv; charset=utf-8')
-        self.set_status(200)
-        for word in word_list['words']:
-            self.write('%s\n' % (formatter.format_word_as_tsv(word)))
-
-        self.finish()
-
-    @tornado.web.asynchronous
-    def render_html_list(self, word_list):
-        """ Render list as HTML page """
-        def add_description(entry):
-            if entry is not None:
-                entry.append(formatter.format_description(entry[2]))
-            return entry
-
-        if word_list is not None:
-            if word_list.get('words') is None:
-                word_list['words'] = []
-            word_list['words'] = list(map(add_description, word_list['words']))
-            word_count = len(word_list['words'])
-
-            # TODO(gmwils): build filename from canonical representation
-            base_uri = self.request.path.lower()
-            if base_uri.endswith('.html'):
-                base_uri = base_uri[0:-5]
-            elif base_uri.endswith('.htm'):
-                base_uri = base_uri[0:-4]
+            base_uri = self.get_base_uri()
 
             self.render('word_list.html',
-                        word_list=word_list,
+                        title=word_list.get('title', ''),
+                        word_list_id=word_list.get('id', 0),
+                        modified_at=word_list.get('modified_at'),
+                        words=words,
                         word_count=word_count,
                         base_uri=base_uri)
         else:
             self.send_error(404)
+
+    def set_content_header(self, content_type='text/csv'):
+        self.set_header('Content-Type', '%s; charset=utf-8' % content_type)
+        self.set_status(200)
+
+    def get_base_uri(self):
+        # TODO(gmwils): build filename from canonical representation
+        base_uri = self.request.path.lower()
+        if base_uri.endswith('.html'):
+            base_uri = base_uri[0:-5]
+        elif base_uri.endswith('.htm'):
+            base_uri = base_uri[0:-4]
+
+        return base_uri
