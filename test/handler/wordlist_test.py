@@ -37,7 +37,9 @@ class DisplayWordListTest(support.UITestCase):
                     callback({'id': list_id,
                               'title': 'list_%d' % list_id,
                               'words': words,
-                              'modified_at': mock.Mock()})
+                              'modified_at': mock.Mock(),
+                              'public': True,
+                              'account_id': 1})
                 else:
                     callback(None)
 

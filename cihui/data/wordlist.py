@@ -71,7 +71,9 @@ class WordListData(base.AsyncDatabase):
         cb_id = self.add_callback(callback, list_id)
         cb = functools.partial(self._on_get_word_list_response, cb_id)
 
-        self.db.execute('SELECT id, title, words, modified_at FROM list WHERE id = %s;',
+        self.db.execute('''SELECT id, title, words, modified_at, public, account_id
+                           FROM list
+                           WHERE id = %s;''',
                         (list_id,),
                         callback=cb)
 
@@ -90,6 +92,8 @@ class WordListData(base.AsyncDatabase):
             word_list['title'] = result[1]
             words = result[2]
             word_list['modified_at'] = result[3]
+            word_list['public'] = result[4]
+            word_list['account_id'] = result[5]
             if words is not None:
                 words = json.loads(words)
 

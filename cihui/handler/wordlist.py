@@ -86,10 +86,30 @@ def add_description(entry):
 
 
 class WordListHandler(BaseListHandler):
+    def valid_to_show_list(self, word_list):
+        if word_list is None:
+            return False
+
+        is_public = word_list.get('public', False)
+        if is_public:
+            return True
+        elif self.current_user and int(self.current_user) == word_list.get('account_id', -1):
+            return True
+        else:
+            return False
+
     @tornado.web.asynchronous
     @gen.coroutine
     def get(self, list_id, list_format):
         word_list = yield gen.Task(self.list_db.get_word_list, int(list_id))
+
+        if not self.valid_to_show_list(word_list):
+            if not self.current_user:
+                self.redirect('/')
+            else:
+                self.redirect('/home')
+
+            return
 
         if list_format == '.csv':
             self.set_content_header('text/csv')

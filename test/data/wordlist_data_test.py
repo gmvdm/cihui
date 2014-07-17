@@ -53,7 +53,7 @@ class GetWordListTest(WordListDataTest):
         sample_date = datetime.datetime(1997, 11, 21, 16, 30)
         cursor = mock.MagicMock(side_effect=[])
         cursor.rowcount = 1
-        cursor.fetchone.return_value = tuple([1, 'Test', None, sample_date])
+        cursor.fetchone.return_value = tuple([1, 'Test', None, sample_date, True, 1])
 
         self.listdata.callbacks['0|1'] = self.callback
         self.listdata._on_get_word_list_response('0|1', cursor)
@@ -61,13 +61,15 @@ class GetWordListTest(WordListDataTest):
         self.callback.assert_called_once_with({'id': 1,
                                                'title': 'Test',
                                                'words': None,
-                                               'modified_at': sample_date})
+                                               'modified_at': sample_date,
+                                               'public': True,
+                                               'account_id': 1})
 
     def test_got_one_word_list_with_words(self):
         sample_date = datetime.datetime(1997, 11, 21, 16, 30)
         cursor = mock.MagicMock(side_effect=[])
         cursor.rowcount = 1
-        cursor.fetchone.return_value = tuple([1, 'Test', '{"key": "value"}', sample_date])
+        cursor.fetchone.return_value = tuple([1, 'Test', '{"key": "value"}', sample_date, True, 1])
 
         self.listdata.callbacks['0|1'] = self.callback
         self.listdata._on_get_word_list_response('0|1', cursor)
@@ -75,7 +77,9 @@ class GetWordListTest(WordListDataTest):
         self.callback.assert_called_once_with({'id': 1,
                                                'title': 'Test',
                                                'words': {'key': 'value'},
-                                               'modified_at': sample_date})
+                                               'modified_at': sample_date,
+                                               'public': True,
+                                               'account_id': 1})
 
 
 class CreateListTest(WordListDataTest):
