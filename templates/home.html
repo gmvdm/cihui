@@ -8,7 +8,11 @@
 {% block content %}
 <ul id='wordlists'>
 {% for word_list in word_lists %}
-  <li><a href='list/{{ word_list['stub'] }}'>{{ word_list['title'] }}</a></li>
+  <li><a href='list/{{ word_list['stub'] }}'>{{ word_list['title'] }}</a>
+  {% if word_list.get('public', False) %}
+    <small>(public)</small>
+  {% end %}
+  </li>
 {% end %}
 </ul>
 

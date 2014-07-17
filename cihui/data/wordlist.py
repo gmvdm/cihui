@@ -41,9 +41,9 @@ class WordListData(base.AsyncDatabase):
 
     def get_user_lists(self, user_id, callback):
         cb_id = self.add_callback(callback)
-        cb = functools.partial(self._on_get_lists_response, cb_id)
+        cb = functools.partial(self._on_get_user_lists_response, cb_id)
 
-        self.db.execute('''SELECT id, title, stub
+        self.db.execute('''SELECT id, title, stub, public
                            FROM list
                            WHERE account_id = %s
                            ORDER BY modified_at DESC;''',
@@ -60,8 +60,10 @@ class WordListData(base.AsyncDatabase):
         else:
             word_lists = []
             for word_list in cursor:
-                word_lists.append({'id': word_list[0], 'title': word_list[1],
-                                   'stub': word_list[2]})
+                word_lists.append({'id': word_list[0],
+                                   'title': word_list[1],
+                                   'stub': word_list[2],
+                                   'public': word_list[3]})
 
             callback(word_lists)
 
