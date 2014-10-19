@@ -1,13 +1,19 @@
 # -*- coding: utf-8 -*-
-# Copyright (c) 2012 Geoff Wilson <gmwils@gmail.com>
+# Copyright (c) 2014 Geoff van der Meer <gmwils@gmail.com>
+
+from base64 import b64encode
+from cihui.handler import common
+from datetime import datetime, timedelta
+from tornado import gen
 
 import base64
 import functools
 import json
+import logging
+import tornado.httpclient
 import tornado.web
 import unicodedata
-
-from cihui.handler import common
+import urllib.parse
 
 
 class APIHandler(common.BaseHandler):
@@ -71,6 +77,81 @@ class APIAccountHandler(APIHandler):
         else:
             # TODO(gmwils): set an error code
             self.write(json.dumps(result))
+
+        self.finish()
+
+
+class APIAccountSkritterHandler(APIHandler):
+    def initialize(self, account_db, client_id, client_secret, redirect_uri):
+        super(APIAccountSkritterHandler, self).initialize(account_db)
+        self.client_id = client_id
+        self.client_secret = client_secret
+        self.redirect_uri = redirect_uri
+
+    def post(self, email):
+        email = self.get_argument('email', None)
+
+        if email is not None:
+            self.account_db.get_account(email, self.got_account)
+        else:
+            self.got_account(None)
+
+    @tornado.web.asynchronous
+    def got_account(self, account):
+        result = {}
+        if account is not None:
+            account_id = account['account_id']
+            skritter_refresh_token = account.get('skritter_refresh_token', '')
+
+            # Request OAuth refresh token from Skritter
+            client = tornado.httpclient.AsyncHTTPClient()
+            params = {
+                'grant_type': 'refresh_token',
+                'client_id': self.client_id,
+                'client_secret': self.client_secret,
+                'refresh_token': skritter_refresh_token
+                }
+
+            data = urllib.parse.urlencode(params)
+            token_url = 'https://www.skritter.com/api/v0/oauth2/token?%s' % data
+            credentials = '%s:%s' % (self.client_id, self.client_secret)
+            credentials = b'basic ' + b64encode(credentials.encode('utf-8'))
+
+            headers = {'AUTHORIZATION': credentials}
+            cb = functools.partial(self._on_handle_refresh_token, account_id)
+            client.fetch(token_url, cb, headers=headers)
+
+        else:
+            # TODO(gmwils): set an error code
+            self.write(json.dumps(result))
+            self.finish()
+
+    @tornado.web.asynchronous
+    @gen.engine
+    def _on_handle_refresh_token(self, account_id, response):
+        # TODO(gmwils): refactor against skritter.py
+        if response.error or response.code != 200:
+            logging.error('Error requesting Skritter OAuth token: %s', response.error)
+            self.finish()
+            return
+
+        token_response = json.loads(response.body.decode('utf-8'))
+
+        skritter_user_id = token_response.get('user_id')
+        access_token = token_response.get('access_token')
+        expires_in = token_response.get('expires_in', 0)
+        refresh_token = token_response.get('refresh_token')
+        expiry_date = datetime.utcnow() + timedelta(seconds=expires_in)
+
+        error = yield gen.Task(self.account_db.store_skritter_token,
+                               account_id,
+                               skritter_user_id,
+                               access_token,
+                               refresh_token,
+                               expiry_date)
+
+        if error is not None:
+            logging.error('Error storing Skritter refresh token')
 
         self.finish()
 

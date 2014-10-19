@@ -20,7 +20,14 @@ def build_password_digest(password, salt):
 class AccountData(base.AsyncDatabase):
     def __init__(self, db_url, db=None):
         super(AccountData, self).__init__(db_url, db)
-        self.get_account_fields = 'id, email, name, created_at, modified_at, skritter_user_id, skritter_access_token'
+        self.get_account_fields = ','.join(['id',
+                                            'email',
+                                            'name',
+                                            'created_at',
+                                            'modified_at',
+                                            'skritter_user_id',
+                                            'skritter_access_token',
+                                            'skritter_refresh_token'])
 
     def authenticate_api_user(self, user, passwd):
         valid_user = os.environ.get('API_USER', 'user')
@@ -93,6 +100,7 @@ class AccountData(base.AsyncDatabase):
             response['modified_at'] = result[4]
             response['skritter_user'] = result[5]
             response['skritter_access_token'] = result[6]
+            response['skritter_refresh_token'] = result[7]
 
         callback(response)
 
