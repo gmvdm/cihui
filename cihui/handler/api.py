@@ -101,7 +101,12 @@ class APIAccountSkritterHandler(APIHandler):
         result = {}
         if account is not None:
             account_id = account['account_id']
-            skritter_refresh_token = account.get('skritter_refresh_token', '')
+            skritter_refresh_token = account.get('skritter_refresh_token', None)
+
+            if skritter_refresh_token is None:
+                logging.error('Account does not have a Skritter token: %s', account_id)
+                self.finish()
+                return
 
             # Request OAuth refresh token from Skritter
             client = tornado.httpclient.AsyncHTTPClient()
