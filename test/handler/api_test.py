@@ -98,21 +98,6 @@ class AccountTest(APITestBase):
         self.assertEqual(result['skritter_user'], 'skuser')
         self.assertEqual(result['skritter_access_token'], '98765')
 
-    def test_find_or_create_account(self):
-        data = self.url_encode_data({'email': 'test@example.com'})
-
-        self.http_client.fetch(self.get_url('/api/account'), self.stop, method='POST',
-                               headers=None, body=data,
-                               auth_username='user', auth_password='secret')
-        response = self.wait()
-
-        self.assertEqual(200, response.code)
-        self.assertIn(b'test@example.com', response.body)
-        self.assertIn(b'id123', response.body)
-
-    def test_create_account(self):
-        pass
-
 
 class ListTest(APITestBase):
     def get_handlers(self):

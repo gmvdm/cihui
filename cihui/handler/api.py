@@ -59,12 +59,6 @@ class APIAccountHandler(APIHandler):
         else:
             self.got_account(None)
 
-    @tornado.web.asynchronous
-    def post(self):
-        email = self.get_argument('email', 'No data received')
-
-        self.account_db.get_account(email, self.got_account)
-
     def got_account(self, account):
         result = {}
         if account is not None:
