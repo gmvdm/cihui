@@ -158,8 +158,6 @@ class APIAccountSkritterHandler(APIHandler):
         if error is not None:
             logging.error('Error storing Skritter refresh token')
 
-        self.finish()
-
 
 def normalize_word_array(word):
     zi, pinyin, definitions = word
