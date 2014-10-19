@@ -88,7 +88,7 @@ class APIAccountSkritterHandler(APIHandler):
         self.client_secret = client_secret
         self.redirect_uri = redirect_uri
 
-    def post(self, email):
+    def post(self):
         email = self.get_argument('email', None)
 
         if email is not None:
