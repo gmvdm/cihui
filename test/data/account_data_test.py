@@ -111,7 +111,7 @@ class GetAccountTest(AccountDataTest):
     def test_get_account_result(self):
         cursor = mock.MagicMock(side_effects=[])
         cursor.rowcount = 1
-        cursor.fetchone.return_value = tuple([1, 'test@example.com', 'Test User', None, None, None, None, None])
+        cursor.fetchone.return_value = tuple([1, 'test@example.com', 'Test User', None, None, None, None, None, None])
 
         self.accountdata.callbacks['0|user'] = self.callback
         self.accountdata._on_get_account_response('0|user', cursor)
@@ -124,7 +124,8 @@ class GetAccountTest(AccountDataTest):
             'modified_at': None,
             'skritter_user': None,
             'skritter_access_token': None,
-            'skritter_refresh_token': None
+            'skritter_refresh_token': None,
+            'skritter_token_expiry': None
             }
 
         self.callback.assert_called_once_with(expected_result)

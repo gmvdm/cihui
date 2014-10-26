@@ -72,10 +72,11 @@ class APIAccountHandler(APIHandler):
             result['account_email'] = account.get('account_email')
             result['skritter_user'] = account.get('skritter_user', '')
             result['skritter_access_token'] = account.get('skritter_access_token', '')
+            result['skritter_token_expiry'] = account.get('skritter_token_expiry', '')
 
             self.write(json.dumps(result))
         else:
-            # TODO(gmwils): set an error code
+            self.set_status(500)
             self.write(json.dumps(result))
 
         self.finish()

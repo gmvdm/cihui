@@ -27,7 +27,8 @@ class AccountData(base.AsyncDatabase):
                                             'modified_at',
                                             'skritter_user_id',
                                             'skritter_access_token',
-                                            'skritter_refresh_token'])
+                                            'skritter_refresh_token',
+                                            'skritter_token_expiry'])
 
     def authenticate_api_user(self, user, passwd):
         valid_user = os.environ.get('API_USER', 'user')
@@ -101,6 +102,7 @@ class AccountData(base.AsyncDatabase):
             response['skritter_user'] = result[5]
             response['skritter_access_token'] = result[6]
             response['skritter_refresh_token'] = result[7]
+            response['skritter_token_expiry'] = result[8]
 
         callback(response)
 
