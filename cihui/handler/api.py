@@ -72,7 +72,9 @@ class APIAccountHandler(APIHandler):
             result['account_email'] = account.get('account_email')
             result['skritter_user'] = account.get('skritter_user', '')
             result['skritter_access_token'] = account.get('skritter_access_token', '')
-            result['skritter_token_expiry'] = account.get('skritter_token_expiry', '')
+            expiry_date = account.get('skritter_token_expiry', None)
+            if expiry_date is not None:
+                result['skritter_token_expiry'] = expiry_date.isoformat()
 
             self.write(json.dumps(result))
         else:
