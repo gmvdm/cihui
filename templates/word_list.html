@@ -16,11 +16,7 @@
 
 
 {% for word_entry in words %}
-<li class='word'><span class='zi'>{{ escape(word_entry[0]) }}</span>
- <span class='pinyin'>{{ escape(word_entry[1]) }}</span>
-<br/>
- <span class='desc'>{{ escape(word_entry[3]) }}</span>
-</li>
+  {% module WordEntry(word_entry[0], word_entry[1], word_entry[3]) %}
 {% end %}
 
 {% end %}

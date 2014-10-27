@@ -6,6 +6,7 @@ from cihui.handler import auth
 from cihui.handler import skritter
 from cihui.handler import wordlist
 from cihui.handler import user
+from cihui import uimodules
 
 import os
 import tornado.web
@@ -29,7 +30,8 @@ class CiHuiApplication(tornado.web.Application):
                     'template_path': os.path.join(os.path.dirname(__file__), '../templates'),
                     'xsrf_cookies': True,
                     'debug': debug,
-                    'login_url': '/login'
+                    'login_url': '/login',
+                    'ui_modules': uimodules
                     }
 
         if cookie_secret is None:
