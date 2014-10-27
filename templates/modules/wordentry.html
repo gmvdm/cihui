@@ -1,6 +1,11 @@
 <li class='word'>
  <span class='zi'>{{ escape(zi) }}</span>
  <span class='pinyin'>{{ escape(pinyin) }}</span>
- &ndash;
+ &dash;
  <span class='desc'>{{ escape(description) }}</span>
+ <span class='links'>
+  <a href="http://www.mdbg.net/chindict/chindict.php?page=worddict&wdrst=0&wdqb={{
+  escape(zi) }}" target="_blank">MDBG</a>,
+  <a href="http://www.hanzicraft.com/character/{{ escape(zi) }}" target="_blank">HanziCraft</a>
+ </span>
 </li>
