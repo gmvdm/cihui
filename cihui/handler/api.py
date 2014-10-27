@@ -160,6 +160,10 @@ class APIAccountSkritterHandler(APIHandler):
 
         if error is not None:
             logging.error('Error storing Skritter refresh token')
+        else:
+            result = {}
+            result['skritter_access_token'] = access_token
+            self.write(json.dumps(result))
 
 
 def normalize_word_array(word):
