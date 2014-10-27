@@ -26,8 +26,11 @@ li.word {
     margin-bottom: 0.6em;
 }
 
-span.zi {
+:lang(zh) {
     font-family: "Microsoft YaHei","SimHei";
+}
+
+span.zi {
     font-weight: normal;
     height: 2em;
     width: 2em;
@@ -42,13 +45,12 @@ span.zi {
 }
 
 span.pinyin {
-    font-size: 14pt;
+    font-size: 1.2em;
     font-style: italic;
 }
 
 span.desc {
     font-family: Georgia, serif;
-    font-size: 12pt;
     font-style: italic;
 }
 
