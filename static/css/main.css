@@ -28,8 +28,17 @@ li.word {
 
 span.zi {
     font-family: "Microsoft YaHei","SimHei";
-    font-size: 24pt;
     font-weight: normal;
+    height: 2em;
+    width: 2em;
+    border: 1px solid #aaa;
+    font-size: 2em;
+    background-color: white;
+    padding: 9px;
+    padding-right: 15px;
+    text-align: center;
+    margin-bottom: 5px;
+    box-shadow: 0.08em 0.08em 0.08em #eee;
 }
 
 span.pinyin {
